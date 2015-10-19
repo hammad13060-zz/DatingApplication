@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:datingapplication="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_profile"
+        android:title="@string/action_profile"
+        datingapplication:showAsAction="never"/>
+    <item android:id="@+id/action_discovery_preference"
+        android:title="@string/action_discovery_preference"
+        datingapplication:showAsAction="never"/>
+</menu>
