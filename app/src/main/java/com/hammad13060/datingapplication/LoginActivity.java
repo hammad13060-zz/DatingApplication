@@ -291,8 +291,12 @@ public class LoginActivity extends FragmentActivity {
         registerUser();
     }
 
+    //registering user on php server
     private void registerUser() {
-        RequestQueue queue = Volley.newRequestQueue(this);
+        //volley request object
+        RequestQueue volleyRequest = Volley.newRequestQueue(this);
+
+        //creating user data for user registeration
         final JSONObject object = new JSONObject();
         try {
             object.put("user_id", AccessToken.getCurrentAccessToken().getUserId());
@@ -304,7 +308,8 @@ public class LoginActivity extends FragmentActivity {
             e.printStackTrace();
         }
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, WEB_URL, null, new Response.Listener<JSONObject>(){
+        //response listener for http request
+        Response.Listener<JSONObject> responseListener = new Response.Listener<JSONObject>(){
             @Override
             public void onResponse(JSONObject response) {
 
@@ -331,19 +336,22 @@ public class LoginActivity extends FragmentActivity {
                 }
 
             }
-        }, new Response.ErrorListener() {
+        };
+
+        //error response listener for http request
+        Response.ErrorListener errorListener = new Response.ErrorListener() {
 
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(TAG, "POST FAILED");
             }
-        }) {
-            @Override
-            public byte[] getBody() {
-                return object.toString().getBytes();
-            }
         };
-        queue.add(request);
+
+        JSONRequest request = new JSONRequest(
+                Request.Method.POST, WEB_URL, null,
+                responseListener, errorListener, object
+        );
+        volleyRequest.add(request);
 
     }
 
