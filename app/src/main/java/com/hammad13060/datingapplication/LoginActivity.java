@@ -217,7 +217,7 @@ public class LoginActivity extends FragmentActivity {
 
     //function to enter main app
     private void enterMainApp() {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, DisplayActivity.class);
         startActivity(intent);
         //finish();
     }
