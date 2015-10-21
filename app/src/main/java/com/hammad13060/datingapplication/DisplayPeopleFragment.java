@@ -8,6 +8,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -18,6 +29,11 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class DisplayPeopleFragment extends Fragment {
+
+    private List<JSONObject> peoples;
+
+    private NSDHelper mNSDHelper = null;
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -58,6 +74,13 @@ public class DisplayPeopleFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        peoples = new ArrayList<JSONObject>();
+
+        mNSDHelper = new NSDHelper(getActivity().getApplicationContext());
+
+
+        mNSDHelper.registerService();
     }
 
     @Override
@@ -84,6 +107,10 @@ public class DisplayPeopleFragment extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }*/
+    @Override
+    public void onStop() {
+        //mNSDHelper.tearDown();
+    }
 
     @Override
     public void onDetach() {
@@ -104,6 +131,55 @@ public class DisplayPeopleFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+    }
+
+    private class SocketServerThread extends Thread {
+
+        @Override
+        public void run() {
+            Socket socket = null;
+            DataInputStream dataInputStream = null;
+            DataOutputStream dataOutputStream = null;
+
+            ServerSocket serverSocket = mNSDHelper.getmServerSocket();
+
+            while (true) {
+                try {
+                    socket = serverSocket.accept();
+
+                    dataInputStream = new DataInputStream(
+                            socket.getInputStream());
+                    dataOutputStream = new DataOutputStream(
+                            socket.getOutputStream());
+
+                    String messageFromClient, messageToClient, request;
+
+                    //If no message sent from client, this code will block the program
+                    messageFromClient = dataInputStream.readUTF();
+
+                    final JSONObject jsondata;
+                    jsondata = new JSONObject(messageFromClient);
+
+                    User user = new User(
+                            jsondata.getString("user_id"),
+                            jsondata.getString("name"),
+                            jsondata.getBoolean("gender"),
+                            jsondata.getInt("age"),
+                            jsondata.getString("url")
+                    );
+                    PeopleDBHandler handler = new PeopleDBHandler(getActivity().getApplicationContext());
+                    handler.addUser(user);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        }
+
     }
 
 }
