@@ -109,6 +109,7 @@ public class DisplayPeopleFragment extends Fragment {
     }*/
     @Override
     public void onStop() {
+        super.onStop();
         //mNSDHelper.tearDown();
     }
 
