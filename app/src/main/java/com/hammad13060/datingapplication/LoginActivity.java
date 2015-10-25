@@ -1,7 +1,9 @@
 package com.hammad13060.datingapplication;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -51,7 +53,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class LoginActivity extends FragmentActivity {
-    private static final String WEB_URL = "http://192.168.51.125/DatingApplication/register_user.php";
+    private static final String WEB_URL = Constants.WEB_SERVER_URL + "/register_user.php";
 
 
     private static final String TAG = "loginActivity";
@@ -67,6 +69,9 @@ public class LoginActivity extends FragmentActivity {
     LoginButton loginButton;
     LoginManager loginManager;
     AccessToken accessToken;
+
+
+    private SharedPreferences pref = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +89,8 @@ public class LoginActivity extends FragmentActivity {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
+
+        System.setProperty("http.keepAlive", "false");
 
         //login button reference
         loginButton = (LoginButton) findViewById(R.id.login_button);
@@ -107,6 +114,8 @@ public class LoginActivity extends FragmentActivity {
             requestProfileInfo();
             enterMainApp();
         }
+
+        pref = getSharedPreferences(Constants.SHARED_PREFERENCE, Context.MODE_PRIVATE);
 
     }
 
@@ -200,6 +209,8 @@ public class LoginActivity extends FragmentActivity {
             public void onCancel() {
                 //app code
                 LoginManager.getInstance().logOut();
+                /*PeopleDBHandler.getInstance(getApplicationContext()).close();
+                UserDBHandler.getInstance(getApplicationContext()).close();*/
                 Log.d(TAG, "LOGGING OUT");
             }
 
@@ -318,19 +329,18 @@ public class LoginActivity extends FragmentActivity {
                     registered = response.getBoolean("registered");
                     if (registered == false) {
                         Log.d(TAG, "USER REGISTRATION COMPLETE");
-                        User user = new User(
-                                AccessToken.getCurrentAccessToken().getUserId(),
-                                name,
-                                gender,
-                                age,
-                                url
-                        );
-
-                        UserDBHandler handler = new UserDBHandler(getApplicationContext());
-                        handler.addUser(user);
                     } else {
                         Log.d(TAG, "USER ALREADY REGISTERED");
                     }
+
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putBoolean("male", true);
+                    editor.putBoolean("female", true);
+                    editor.commit();
+
+                    saveUserToDB();
+
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -344,6 +354,7 @@ public class LoginActivity extends FragmentActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(TAG, "POST FAILED");
+                saveUserToDB();
             }
         };
 
@@ -353,6 +364,27 @@ public class LoginActivity extends FragmentActivity {
         );
         volleyRequest.add(request);
 
+    }
+
+    private void saveUserToDB() {
+        /*User user = new User(
+                AccessToken.getCurrentAccessToken().getUserId(),
+                name,
+                gender,
+                age,
+                url
+        );
+        UserDBHandler handler = UserDBHandler.getInstance(getApplicationContext());
+        handler.addUser(user);*/
+
+        SharedPreferences userSettings = getSharedPreferences(Constants.USER_DATA, Context.MODE_PRIVATE);
+        SharedPreferences.Editor userSettingsEditor = userSettings.edit();
+        userSettingsEditor.putString("user_id", AccessToken.getCurrentAccessToken().getUserId());
+        userSettingsEditor.putString("name", name);
+        userSettingsEditor.putBoolean("gender", gender);
+        userSettingsEditor.putInt("age", age);
+        userSettingsEditor.putString("url", url);
+        userSettingsEditor.commit();
     }
 
 }

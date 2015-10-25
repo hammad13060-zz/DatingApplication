@@ -2,6 +2,7 @@ package com.hammad13060.datingapplication;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -15,10 +16,11 @@ import java.util.List;
 public class PeopleDBHandler extends SQLiteOpenHelper {
     // All Static variables
     // Database Version
+    private Context activity = null;
     private static final int DATABASE_VERSION = 1;
 
     // Database Name
-    private static final String DATABASE_NAME = "dating_application";
+    private static final String DATABASE_NAME = "dating_application.db";
 
     // Contacts table name
     private static final String TABLE_PEOPLE = "people";
@@ -30,16 +32,31 @@ public class PeopleDBHandler extends SQLiteOpenHelper {
     private static final String AGE = "age";
     private static final String URL = "url";
 
-    public PeopleDBHandler(Context context) {
+
+    private static PeopleDBHandler instance = null;
+    private static Object mutex= new Object();
+
+    private PeopleDBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.activity = context;
+    }
+
+    public static PeopleDBHandler getInstance(Context context) {
+        if (instance == null) {
+            synchronized (mutex) {
+              if (instance == null)  instance = new PeopleDBHandler(context.getApplicationContext());
+            }
+        }
+
+        return instance;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_USERS_TABLE = "CREATE TABLE " + TABLE_PEOPLE + "(" +
+        String CREATE_USERS_TABLE = "CREATE TABLE " + TABLE_PEOPLE + "( " +
                 USER_ID + " VARCHAR(255) PRIMARY KEY NOT NULL," +
-                NAME + " TEXT NOT NULL," +
-                GENDER + " BOOLEAN DEFAULT 0, " +
+                NAME + " TEXT NOT NULL, " +
+                GENDER + " BOOLEAN , " +
                 AGE + " INTEGER NOT NULL, " +
                 URL + " TEXT NOT NULL " +
                 ")";
@@ -68,7 +85,7 @@ public class PeopleDBHandler extends SQLiteOpenHelper {
         values.put(URL, user.get_url());
 
         db.insert(TABLE_PEOPLE, null, values);
-        db.close();
+
     }
 
     public User getUser(String user_id) {
@@ -93,12 +110,34 @@ public class PeopleDBHandler extends SQLiteOpenHelper {
     }
 
     public List<User> getAllUser() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        List<User> list = new ArrayList<User>();
+        SharedPreferences pref = activity.getSharedPreferences(Constants.SHARED_PREFERENCE, Context.MODE_PRIVATE);
 
-        Cursor cursor = db.query(TABLE_PEOPLE,
-                new String[] {USER_ID, NAME, GENDER, AGE, URL},
-                null, null, null, null, null, null);
+        boolean male = pref.getBoolean("male", true);
+        boolean female = pref.getBoolean("female", true);
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        List<User> list = new ArrayList<User>(0);
+
+        String query = null;
+        String[] comparison = null;
+
+        if (male == true && female == false) {
+            query = GENDER + "=?";
+            comparison = new String[] {"No"};
+        } else if (male == false && female == true) {
+            query = GENDER + "=?";
+            comparison = new String[] {"Yes"};
+        } else if (male && female) {
+            query = GENDER + "=? OR " + GENDER + "=?";
+            comparison = new String[] {"No", "Yes"};
+        } else {
+            return list;
+        }
+
+        Cursor cursor = db.query(TABLE_PEOPLE, new String[] { USER_ID,
+                        NAME, GENDER, AGE, URL }, query,
+                comparison, null, null, null, null);
 
         while(cursor.moveToNext()) {
             User user = new User(
@@ -113,5 +152,11 @@ public class PeopleDBHandler extends SQLiteOpenHelper {
         }
 
         return list;
+    }
+
+    public void removeUser(String user_id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String sql = "DELETE FROM " + TABLE_PEOPLE + " WHERE " + USER_ID + "=" + user_id;
+        db.execSQL(sql);
     }
 }

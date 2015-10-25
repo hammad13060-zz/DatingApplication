@@ -1,10 +1,67 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_height="match_parent"
+    android:layout_width="match_parent"
     tools:context="com.hammad13060.datingapplication.DisplayPeopleFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView android:layout_width="match_parent" android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <LinearLayout
+        android:id="@+id/people_around"
+        android:paddingBottom="10dp"
+        android:paddingTop="30dp"
+        android:paddingLeft="30dp"
+        android:paddingRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-</FrameLayout>
+        <!--Image view for displaying profile picture-->
+        <ImageView
+            android:id="@+id/profile_image_view"
+            android:layout_width="match_parent"
+            android:layout_weight="3"
+            android:layout_height="0dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="0dp"
+            android:orientation="horizontal">
+
+            <!--ignore a person button-->
+            <Button
+                android:id="@+id/ignore_button"
+                android:text="Ignore"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:onClick="ignoreButtonClickListener"/>
+
+            <!--show interest in a person button-->
+            <Button
+                android:id="@+id/like_button"
+                android:text="Like"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:onClick="likeButtonClickListener"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/no_people_around"
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center">
+
+        <TextView
+            android:text="no new people around you"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

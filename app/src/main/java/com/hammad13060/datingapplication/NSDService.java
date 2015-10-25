@@ -8,6 +8,8 @@ public class NSDService extends Service {
     public NSDService() {
     }
 
+
+
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.

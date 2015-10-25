@@ -34,13 +34,13 @@ public class DisplayActivityPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         Fragment f = null;
         if (position == DISPLAY_PEOPLE) {
-            f = new DisplayMatchFragment();
-        } else if (position == DISPLAY_MATCH){
             f = new DisplayPeopleFragment();
+        } else if (position == DISPLAY_MATCH){
+            f = new DisplayMatchFragment();
         } else if (position == DISPLAY_PROFILE) {
             f = new DisplayProfileFragment();
         } else {
-            f = new DisplayMatchFragment();
+            f = new DisplayPeopleFragment();
         }
 
         return f;

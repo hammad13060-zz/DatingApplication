@@ -16,10 +16,14 @@ public class DisplayActivity extends MainActivity {
     private DisplayActivityPagerAdapter mAdapter;
     private ViewPager mPager;
     private ActionBar actionBar = null;
+
+    private AppServer myServer = null;
+    private NSDHelper mNSDHelper = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         actionBar = getActionBar();
+
 
         // Specify that tabs should be displayed in the action bar.
         //actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -30,6 +34,11 @@ public class DisplayActivity extends MainActivity {
         mPager = (ViewPager)findViewById(R.id.pager);
 
         mPager.setAdapter(mAdapter);
+        myServer = new AppServer(this);
+        myServer.initializeServer();
+        myServer.startServer();
+        mNSDHelper = NSDHelper.getInstance(this);
+
         //addTabs();
 
         /*mPager.setOnPageChangeListener(
@@ -48,7 +57,19 @@ public class DisplayActivity extends MainActivity {
     }
 
     protected void onResume() {
+
         super.onResume();
+
+        if (myServer == null) {
+            myServer = new AppServer(this);
+            myServer.initializeServer();
+            myServer.startServer();
+        }
+
+        if (mNSDHelper == null) {
+            mNSDHelper = NSDHelper.getInstance(this);
+        }
+
     }
 
     /*@Override
@@ -110,6 +131,13 @@ public class DisplayActivity extends MainActivity {
                 actionBar.newTab()
                         .setText(mAdapter.getPageTitle(DisplayActivityPagerAdapter.DISPLAY_PROFILE))
                         .setTabListener(createActionBarListener()));
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        myServer.killServer();
+        mNSDHelper.tearDown();
     }
 
     /*@Override

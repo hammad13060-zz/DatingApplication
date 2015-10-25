@@ -1,12 +1,24 @@
 package com.hammad13060.datingapplication;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,8 +28,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
+import java.util.prefs.PreferenceChangeEvent;
 
 
 /**
@@ -30,10 +45,6 @@ import java.util.List;
  */
 public class DisplayPeopleFragment extends Fragment {
 
-    private List<JSONObject> peoples;
-
-    private NSDHelper mNSDHelper = null;
-
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -42,6 +53,9 @@ public class DisplayPeopleFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+
+    private View myView = null;
 
     private OnFragmentInteractionListener mListener;
 
@@ -67,6 +81,8 @@ public class DisplayPeopleFragment extends Fragment {
         // Required empty public constructor
     }
 
+    private NSDHelper mNSDHelper = null;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,19 +91,15 @@ public class DisplayPeopleFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        peoples = new ArrayList<JSONObject>();
 
-        mNSDHelper = new NSDHelper(getActivity().getApplicationContext());
-
-
-        mNSDHelper.registerService();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_display_people, container, false);
+        myView = inflater.inflate(R.layout.fragment_display_people, container, false);
+        return myView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -97,26 +109,41 @@ public class DisplayPeopleFragment extends Fragment {
         }
     }
 
-    /*@Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }*/
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
     @Override
     public void onStop() {
         super.onStop();
-        //mNSDHelper.tearDown();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     /**
@@ -133,54 +160,4 @@ public class DisplayPeopleFragment extends Fragment {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
-
-    private class SocketServerThread extends Thread {
-
-        @Override
-        public void run() {
-            Socket socket = null;
-            DataInputStream dataInputStream = null;
-            DataOutputStream dataOutputStream = null;
-
-            ServerSocket serverSocket = mNSDHelper.getmServerSocket();
-
-            while (true) {
-                try {
-                    socket = serverSocket.accept();
-
-                    dataInputStream = new DataInputStream(
-                            socket.getInputStream());
-                    dataOutputStream = new DataOutputStream(
-                            socket.getOutputStream());
-
-                    String messageFromClient, messageToClient, request;
-
-                    //If no message sent from client, this code will block the program
-                    messageFromClient = dataInputStream.readUTF();
-
-                    final JSONObject jsondata;
-                    jsondata = new JSONObject(messageFromClient);
-
-                    User user = new User(
-                            jsondata.getString("user_id"),
-                            jsondata.getString("name"),
-                            jsondata.getBoolean("gender"),
-                            jsondata.getInt("age"),
-                            jsondata.getString("url")
-                    );
-                    PeopleDBHandler handler = new PeopleDBHandler(getActivity().getApplicationContext());
-                    handler.addUser(user);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
-            }
-        }
-
-    }
-
 }

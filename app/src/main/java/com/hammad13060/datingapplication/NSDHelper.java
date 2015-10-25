@@ -1,6 +1,8 @@
 package com.hammad13060.datingapplication;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiManager;
@@ -19,11 +21,18 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 
 /**
  * Created by Hammad on 15-10-2015.
  */
 public class NSDHelper {
+
+    HashMap<String, Boolean> personConnected = null;
+
+    SharedPreferences me_data = null;
+
+    private static NSDHelper instance = null;
 
     private NsdServiceInfo mService = null;
     private NsdManager mNsdManager = null;
@@ -33,7 +42,7 @@ public class NSDHelper {
     private String mServiceName = "dating_application";
     private static final String SERVICE_NAME = "dating_application";
     private String TAG = "NSDHelper";
-    private String SERVICE_TYPE = "_http._tcp";
+    private String SERVICE_TYPE = "_http._tcp.";
 
     Context context = null;
 
@@ -41,13 +50,10 @@ public class NSDHelper {
     NsdManager.DiscoveryListener mDiscoveryListener = null;
     NsdManager.ResolveListener mResolveListener = null;
 
-    public NSDHelper(Context context) {
+    private NSDHelper(Context context) {
 
         this.context = context;
-        initializeRegistrationListener();
-        initializeDiscoveryListener();
-        initializeResolveListener();
-        initializeServerSocket();
+        me_data = context.getSharedPreferences(Constants.USER_DATA, Context.MODE_PRIVATE);
 
     }
 
@@ -59,22 +65,37 @@ public class NSDHelper {
         return mServerSocket;
     }
 
-    public void registerService() {
-        // Create the NsdServiceInfo object, and populate it.
-        mService  = new NsdServiceInfo();
+    public static NSDHelper getInstance(Context context) {
+        if (instance == null) {
+            instance = new NSDHelper(context);
+            instance.registerService();
+        }
 
-        // The name is subject to change based on conflicts
-        // with other services advertised on the same network.
+        return instance;
+    }
+
+    public void registerService() {
+
+        personConnected = new HashMap<>();
+        // Create the NsdServiceInfo object, and populate it.
+            initializeServerSocket();
+            initializeRegistrationListener();
+            initializeDiscoveryListener();
+            mResolveListener = initializeResolveListener();
+
+            mService = new NsdServiceInfo();
+
+            // The name is subject to change based on conflicts
+            // with other services advertised on the same network.
         mService.setServiceName(mServiceName);
         mService.setServiceType(SERVICE_TYPE);
-        mService.setPort(mLocalPort);
+            mService.setPort(mLocalPort);
 
-        mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
+            mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
+            mNsdManager.registerService(
+                    mService, NsdManager.PROTOCOL_DNS_SD, mRegistrationListener);
 
-        mNsdManager.registerService(
-                mService, NsdManager.PROTOCOL_DNS_SD, mRegistrationListener);
-
-        mNsdManager.discoverServices(String.valueOf(mService), NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
+        mNsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
     }
 
     public void initializeRegistrationListener() {
@@ -88,8 +109,6 @@ public class NSDHelper {
                 mServiceName = NsdServiceInfo.getServiceName();
 
                 Log.d(TAG, "service registration successful");
-
-                new SocketServerThread().start();
             }
 
             @Override
@@ -103,6 +122,13 @@ public class NSDHelper {
                 // Service has been unregistered.  This only happens when you call
                 // NsdManager.unregisterService() and pass in this listener.
                 Log.d(TAG, "service unregistered");
+                if (mServerSocket != null) {
+                    try {
+                        mServerSocket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             @Override
@@ -137,6 +163,7 @@ public class NSDHelper {
                     // connecting to. It could be "Bob's Chat App".
                     Log.d(TAG, "Same machine: " + mServiceName);
                 } else if (service.getServiceName().contains(SERVICE_NAME)){
+                    Log.d(TAG, "gonna resolve service now");
                     mNsdManager.resolveService(service, mResolveListener);
                 }
             }
@@ -145,7 +172,7 @@ public class NSDHelper {
             public void onServiceLost(NsdServiceInfo service) {
                 // When the network service is no longer available.
                 // Internal bookkeeping code goes here.
-                Log.e(TAG, "service lost" + service);
+                Log.e(TAG, "fut" + service);
             }
 
             @Override
@@ -167,8 +194,8 @@ public class NSDHelper {
         };
     }
 
-    public void initializeResolveListener() {
-        mResolveListener = new NsdManager.ResolveListener() {
+    public NsdManager.ResolveListener initializeResolveListener() {
+        return new NsdManager.ResolveListener() {
 
             @Override
             public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
@@ -188,7 +215,7 @@ public class NSDHelper {
                 int port = mService.getPort();
                 InetAddress host = mService.getHost();
 
-                connectHost(host, port);
+                connectHost(host, AppServer.SERVER_PORT);
 
 
             }
@@ -198,7 +225,17 @@ public class NSDHelper {
     public void tearDown() {
         mNsdManager.unregisterService(mRegistrationListener);
         mNsdManager.stopServiceDiscovery(mDiscoveryListener);
+        if (mServerSocket != null) {
+            try {
+                mServerSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        instance = null;
     }
+
+
 
     public void initializeServerSocket() {
         // Initialize a server socket on the next available port.
@@ -211,38 +248,88 @@ public class NSDHelper {
         }
     }
 
-    private String getLocalIpAddress() {
-        WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
-        return ip;
-    }
-
     private void connectHost(InetAddress hostAddress, int port) {
         if (hostAddress == null) {
             Log.e(TAG, "Host Address is null");
             return;
         }
 
-        //my ip address
-        String ipAddress = getLocalIpAddress();
+        Log.d(TAG, "FORMING JSON OBJECT");
+
         JSONObject jsonData = new JSONObject();
 
         JSONObject serverData = new JSONObject();
 
-        UserDBHandler handler= new UserDBHandler(context);
-        User me = handler.getUser(AccessToken.getCurrentAccessToken().getUserId());
+        //UserDBHandler handler= UserDBHandler.getInstance(context);
         try {
             jsonData.put("user_id", AccessToken.getCurrentAccessToken().getUserId());
-            jsonData.put("name", me.get_name());
-            jsonData.put("gender", me.is_gender());
-            jsonData.put("age", me.get_age());
-            jsonData.put("url", me.get_url());
-            jsonData.put("ipAddress", ipAddress);
+            jsonData.put("name", me_data.getString("name", "hey this is me"));
+            jsonData.put("gender", me_data.getBoolean("gender", true));
+            jsonData.put("age", me_data.getInt("age", 18));
+            jsonData.put("url", me_data.getString("url", "abc"));
 
             serverData.put("ipAddress", hostAddress);
             serverData.put("port", port);
 
-            new SocketServerTask().execute(jsonData, serverData);
+            //new Thread(new SendDataToServer(jsonData, hostAddress, port)).start();
+
+            Socket socket = null;
+            DataInputStream dataInputStream = null;
+            DataOutputStream dataOutputStream = null;
+
+            try {
+                socket = new Socket(hostAddress, port);
+
+                dataOutputStream = new DataOutputStream(
+                        socket.getOutputStream());
+                dataInputStream = new DataInputStream(socket.getInputStream());
+
+                // transfer JSONObject as String to the server
+                dataOutputStream.writeUTF(jsonData.toString());
+                Log.i(TAG, "waiting for response from host");
+
+                // Thread will wait till server replies
+                boolean success;
+
+                String response = dataInputStream.readUTF();
+                if (response != null && response.equals(AppServer.SERVER_REPLY)) {
+                    Log.e(TAG, "data transaction complete");
+                } else {
+                    Log.e(TAG,"DATA TRANSACTION FAILED");
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+
+                // close socket
+                if (socket != null) {
+                    try {
+                        Log.e(TAG, "closing the socket");
+                        socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                // close input stream
+                if (dataInputStream != null) {
+                    try {
+                        dataInputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                // close output stream
+                if (dataOutputStream != null) {
+                    try {
+                        dataOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -251,42 +338,46 @@ public class NSDHelper {
         }
     }
 
-    private class SocketServerTask extends AsyncTask<JSONObject, Void, Void> {
+    private class SendDataToServer implements Runnable {
+
+        JSONObject userData;
+        InetAddress address;
+        int port;
+
+        public SendDataToServer(JSONObject userData, InetAddress address, int port) {
+            super();
+            this.userData = userData;
+            this.address = address;
+            this.port = port;
+        }
 
         @Override
-        protected Void doInBackground(JSONObject... params) {
+        public void run() {
 
             Socket socket = null;
             DataInputStream dataInputStream = null;
             DataOutputStream dataOutputStream = null;
 
-            JSONObject userData = params[0];
-            JSONObject serverData = params[1];
-
-            InetAddress serverAddress;
-            int serverPort;
-            try {
-                serverAddress = (InetAddress)serverData.get("ipAddress");
-                serverPort = serverData.getInt("port");
+            Log.d(TAG, "sending data to other person");
                 try {
-                    socket = new Socket(serverAddress, serverPort);
+                    socket = new Socket(this.address, this.port);
 
                     dataOutputStream = new DataOutputStream(
                             socket.getOutputStream());
                     dataInputStream = new DataInputStream(socket.getInputStream());
 
                     // transfer JSONObject as String to the server
-                    dataOutputStream.writeUTF(userData.toString());
+                    dataOutputStream.writeUTF(this.userData.toString());
                     Log.i(TAG, "waiting for response from host");
 
                     // Thread will wait till server replies
                     boolean success;
 
                     String response = dataInputStream.readUTF();
-                    if (response != null && response.equals("Connection Accepted")) {
-                        success = true;
+                    if (response != null && response.equals(AppServer.SERVER_REPLY)) {
+                        Log.e(TAG, "data transaction complete");
                     } else {
-                        success = false;
+                        Log.e(TAG,"DATA TRANSACTION FAILED");
                     }
 
                 } catch (IOException e) {
@@ -296,7 +387,7 @@ public class NSDHelper {
                     // close socket
                     if (socket != null) {
                         try {
-                            Log.i(TAG, "closing the socket");
+                            Log.e(TAG, "closing the socket");
                             socket.close();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -322,108 +413,8 @@ public class NSDHelper {
                     }
                 }
 
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
 
-            return null;
         }
-    }
-
-
-
-    //multi threaded server code
-    private class SocketServerThread extends Thread {
-
-        @Override
-        public void run() {
-            Socket socket = null;
-            DataInputStream dataInputStream = null;
-            DataOutputStream dataOutputStream = null;
-
-            ServerSocket serverSocket = mServerSocket;
-
-            while (true) {
-                try {
-                    new SavePeopleThread().execute(serverSocket.accept());
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-            }
-        }
-
-    }
-
-    private class SavePeopleThread extends AsyncTask<Socket, Void, Void> {
-        @Override
-        protected Void doInBackground(Socket... params) {
-            Socket socket = params[0];
-
-            DataInputStream dataInputStream  = null;
-            DataOutputStream dataOutputStream = null;
-            try {
-                dataInputStream = new DataInputStream(
-                        socket.getInputStream());
-                dataOutputStream = new DataOutputStream(
-                        socket.getOutputStream());
-
-                String messageFromClient, messageToClient, request;
-
-                //If no message sent from client, this code will block the program
-                messageFromClient = dataInputStream.readUTF();
-
-                final JSONObject jsondata;
-                    jsondata = new JSONObject(messageFromClient);
-
-                User user = new User(
-                        jsondata.getString("user_id"),
-                        jsondata.getString("name"),
-                        jsondata.getBoolean("gender"),
-                        jsondata.getInt("age"),
-                        jsondata.getString("url")
-                );
-                PeopleDBHandler handler = new PeopleDBHandler(context);
-                handler.addUser(user);
-
-                messageToClient = "Connection Accepted";
-                dataOutputStream.writeUTF(messageToClient);
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } finally {
-
-                if (socket != null) {
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                if (dataInputStream != null) {
-                    try {
-                        dataInputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                if (dataOutputStream != null) {
-                    try {
-                        dataOutputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return null;
-        }
-    }
 
 }

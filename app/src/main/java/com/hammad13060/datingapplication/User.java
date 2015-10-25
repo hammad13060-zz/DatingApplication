@@ -4,6 +4,7 @@ package com.hammad13060.datingapplication;
  * Created by Hammad on 19-10-2015.
  */
 public class User {
+    int _id;
     String _user_id;
     String _name;
     int _age;
@@ -64,5 +65,9 @@ public class User {
 
     public void set_url(String _url) {
         this._url = _url;
+    }
+
+    public String toString() {
+        return "name: " + _name + " gender: " + _gender + " user_id: " + _user_id;
     }
 }

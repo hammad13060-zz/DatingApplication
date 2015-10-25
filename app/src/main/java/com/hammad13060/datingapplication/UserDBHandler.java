@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
@@ -16,7 +17,7 @@ public class UserDBHandler extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     // Database Name
-    private static final String DATABASE_NAME = "dating_application";
+    private static final String DATABASE_NAME = "dating_application.db";
 
     // Contacts table name
     private static final String TABLE_USERS = "users";
@@ -28,18 +29,32 @@ public class UserDBHandler extends SQLiteOpenHelper {
     private static final String AGE = "age";
     private static final String URL = "url";
 
-    public UserDBHandler(Context context) {
+    private static UserDBHandler instance = null;
+    private static Object mutex= new Object();
+
+    private UserDBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public static UserDBHandler getInstance(Context context) {
+        if (instance == null) {
+            synchronized (mutex) {
+                if (instance == null)   instance = new UserDBHandler(context.getApplicationContext());
+            }
+        }
+
+        return instance;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_USERS_TABLE = "CREATE TABLE " + TABLE_USERS + "(" +
-                USER_ID + " VARCHAR(255) PRIMARY KEY NOT NULL," +
-                NAME + " TEXT NOT NULL," +
-                GENDER + " BOOLEAN DEFAULT 0, " +
-                AGE + " INTEGER NOT NULL, " +
-                URL + " TEXT NOT NULL " +
+        String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS '" + TABLE_USERS + "' ( " +
+                "'" + "_id" + "'" + " PRIMARY KEY INTEGER AUTOINCREMENT, " +
+                "'" + USER_ID + "'" + " VARCHAR(255), " +
+                "'" + NAME + "'" + " TEXT NOT NULL, " +
+                "'" + GENDER + "'" + " BOOLEAN NOT NULL, " +
+                "'" + AGE + "'" + " INTEGER NOT NULL, " +
+                "'" + URL + "'" + " VARCHAR(5000) NOT NULL " +
                 ")";
 
         db.execSQL(CREATE_USERS_TABLE);
@@ -48,10 +63,13 @@ public class UserDBHandler extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
 
-        // Create tables again
-        onCreate(db);
+        if (newVersion > oldVersion) {
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+
+            // Create tables again
+            onCreate(db);
+        }
     }
 
     public void addUser(User user) {
