@@ -2,6 +2,9 @@ package com.hammad13060.datingapplication;
 
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,5 +33,69 @@ public class Constants {
             return 0;
         }
         return peopleAround.size();
+    }
+
+    public static JSONObject constructUserJson(User user) {
+        JSONObject userJSON = new JSONObject();
+        try {
+            userJSON.put("user_id", user.get_user_id());
+            userJSON.put("name", user.get_name());
+            userJSON.put("gender", user.is_gender());
+            userJSON.put("age", user.get_age());
+            userJSON.put("url", user.get_url());
+            return userJSON;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return userJSON;
+    }
+
+    public static User jsonToUser(JSONObject userJSON) {
+        try {
+            return new User(
+                    userJSON.getString("user_id"),
+                    userJSON.getString("name"),
+                    userJSON.getBoolean("gender"),
+                    userJSON.getInt("age"),
+                    userJSON.getString("url")
+            );
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return new User();
+    }
+
+    public static Person personJsonToUser(JSONObject userJSON) {
+        try {
+            return new Person(
+                    userJSON.getString("user_id"),
+                    userJSON.getString("name"),
+                    userJSON.getBoolean("gender"),
+                    userJSON.getInt("age"),
+                    userJSON.getString("url")
+            );
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return new Person();
+    }
+
+    public static JSONObject personconstructUserJson(Person user) {
+        JSONObject userJSON = new JSONObject();
+        try {
+            userJSON.put("user_id", user.get_user_id());
+            userJSON.put("name", user.get_name());
+            userJSON.put("gender", user.is_gender());
+            userJSON.put("age", user.get_age());
+            userJSON.put("url", user.get_url());
+            return userJSON;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return userJSON;
     }
 }

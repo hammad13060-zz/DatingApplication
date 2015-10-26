@@ -78,7 +78,7 @@ public class LoginActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         // for finding key hash of dev environment
         Log.i(TAG, printKeyHash(this));
-
+        pref = getSharedPreferences(Constants.SHARED_PREFERENCE, Context.MODE_PRIVATE);
         //initializing facebook sdk
         FacebookSdk.sdkInitialize(this.getApplicationContext());
 
@@ -114,8 +114,6 @@ public class LoginActivity extends FragmentActivity {
             requestProfileInfo();
             enterMainApp();
         }
-
-        pref = getSharedPreferences(Constants.SHARED_PREFERENCE, Context.MODE_PRIVATE);
 
     }
 
@@ -230,7 +228,7 @@ public class LoginActivity extends FragmentActivity {
     private void enterMainApp() {
         Intent intent = new Intent(this, DisplayActivity.class);
         startActivity(intent);
-        //finish();
+        finish();
     }
 
     private void requestProfileInfo() {
@@ -287,6 +285,8 @@ public class LoginActivity extends FragmentActivity {
                 }
         );
 
+        //saveUserToDB();
+
         parameters = new Bundle();
         parameters.putString("fields", "id,first_name, gender, age_range");
 
@@ -299,6 +299,7 @@ public class LoginActivity extends FragmentActivity {
         );
         meRequest.executeAndWait();
         dp_request.executeAndWait();
+        saveUserToDB();
         registerUser();
     }
 
@@ -338,8 +339,6 @@ public class LoginActivity extends FragmentActivity {
                     editor.putBoolean("female", true);
                     editor.commit();
 
-                    saveUserToDB();
-
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -354,7 +353,6 @@ public class LoginActivity extends FragmentActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(TAG, "POST FAILED");
-                saveUserToDB();
             }
         };
 
@@ -367,24 +365,23 @@ public class LoginActivity extends FragmentActivity {
     }
 
     private void saveUserToDB() {
-        /*User user = new User(
+        User user = new User(
                 AccessToken.getCurrentAccessToken().getUserId(),
                 name,
                 gender,
                 age,
                 url
         );
-        UserDBHandler handler = UserDBHandler.getInstance(getApplicationContext());
-        handler.addUser(user);*/
+        UserDBHandler handler = new UserDBHandler(this, null, null, 1);
+        handler.addUser(user);
 
-        SharedPreferences userSettings = getSharedPreferences(Constants.USER_DATA, Context.MODE_PRIVATE);
+        /*SharedPreferences userSettings = getSharedPreferences(Constants.USER_DATA, Context.MODE_PRIVATE);
         SharedPreferences.Editor userSettingsEditor = userSettings.edit();
         userSettingsEditor.putString("user_id", AccessToken.getCurrentAccessToken().getUserId());
         userSettingsEditor.putString("name", name);
         userSettingsEditor.putBoolean("gender", gender);
         userSettingsEditor.putInt("age", age);
         userSettingsEditor.putString("url", url);
-        userSettingsEditor.commit();
+        userSettingsEditor.commit();*/
     }
-
 }

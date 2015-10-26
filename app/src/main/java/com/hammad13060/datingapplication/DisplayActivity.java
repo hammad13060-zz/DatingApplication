@@ -32,28 +32,17 @@ public class DisplayActivity extends MainActivity {
 
         mAdapter = new DisplayActivityPagerAdapter(getSupportFragmentManager());
         mPager = (ViewPager)findViewById(R.id.pager);
-
         mPager.setAdapter(mAdapter);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         myServer = new AppServer(this);
         myServer.initializeServer();
         myServer.startServer();
         mNSDHelper = NSDHelper.getInstance(this);
-
-        //addTabs();
-
-        /*mPager.setOnPageChangeListener(
-                new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        // When swiping between pages, select the
-                        // corresponding tab.
-                        actionBar.setSelectedNavigationItem(position);
-                    }
-                });*/
-
-        //PagerTabStrip tabs = (PagerTabStrip) findViewById(R.id.pager_title_strip);
-
-
     }
 
     protected void onResume() {
@@ -94,54 +83,10 @@ public class DisplayActivity extends MainActivity {
         return super.onOptionsItemSelected(item);
     }*/
 
-    private ActionBar.TabListener createActionBarListener() {
-        return new ActionBar.TabListener() {
-
-            @Override
-            public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-                mPager.setCurrentItem(tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-
-            }
-
-            @Override
-            public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-
-            }
-        };
-    }
-
-    //adding tabs to the activity
-    private void addTabs() {
-
-        actionBar.addTab(
-                actionBar.newTab()
-                        .setText(mAdapter.getPageTitle(DisplayActivityPagerAdapter.DISPLAY_PEOPLE))
-                        .setTabListener(createActionBarListener()));
-
-        actionBar.addTab(
-                actionBar.newTab()
-                        .setText(mAdapter.getPageTitle(DisplayActivityPagerAdapter.DISPLAY_MATCH))
-                        .setTabListener(createActionBarListener()));
-
-        actionBar.addTab(
-                actionBar.newTab()
-                        .setText(mAdapter.getPageTitle(DisplayActivityPagerAdapter.DISPLAY_PROFILE))
-                        .setTabListener(createActionBarListener()));
-    }
-
     @Override
     public void onStop() {
         super.onStop();
         myServer.killServer();
         mNSDHelper.tearDown();
     }
-
-    /*@Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }*/
 }

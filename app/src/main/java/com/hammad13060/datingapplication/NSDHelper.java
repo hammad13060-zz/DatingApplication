@@ -34,26 +34,25 @@ public class NSDHelper {
 
     private static NSDHelper instance = null;
 
-    private NsdServiceInfo mService = null;
-    private NsdManager mNsdManager = null;
-    private ServerSocket mServerSocket = null;
-    private int mLocalPort;
+    private static NsdServiceInfo mService = null;
+    private static NsdManager mNsdManager = null;
+    private static ServerSocket mServerSocket = null;
+    private static int mLocalPort;
 
-    private String mServiceName = "dating_application";
+    private static String mServiceName = "dating_application";
     private static final String SERVICE_NAME = "dating_application";
-    private String TAG = "NSDHelper";
-    private String SERVICE_TYPE = "_http._tcp.";
+    private static String TAG = "NSDHelper";
+    private static final String SERVICE_TYPE = "_http._tcp.";
 
     Context context = null;
 
-    NsdManager.RegistrationListener mRegistrationListener = null;
-    NsdManager.DiscoveryListener mDiscoveryListener = null;
-    NsdManager.ResolveListener mResolveListener = null;
+    private static NsdManager.RegistrationListener mRegistrationListener = null;
+    private static NsdManager.DiscoveryListener mDiscoveryListener = null;
+    private static NsdManager.ResolveListener mResolveListener = null;
 
     private NSDHelper(Context context) {
 
         this.context = context;
-        me_data = context.getSharedPreferences(Constants.USER_DATA, Context.MODE_PRIVATE);
 
     }
 
@@ -81,14 +80,14 @@ public class NSDHelper {
             initializeServerSocket();
             initializeRegistrationListener();
             initializeDiscoveryListener();
-            mResolveListener = initializeResolveListener();
+            initializeResolveListener();
 
             mService = new NsdServiceInfo();
 
             // The name is subject to change based on conflicts
             // with other services advertised on the same network.
-        mService.setServiceName(mServiceName);
-        mService.setServiceType(SERVICE_TYPE);
+            mService.setServiceName(mServiceName);
+            mService.setServiceType(SERVICE_TYPE);
             mService.setPort(mLocalPort);
 
             mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
@@ -164,7 +163,7 @@ public class NSDHelper {
                     Log.d(TAG, "Same machine: " + mServiceName);
                 } else if (service.getServiceName().contains(SERVICE_NAME)){
                     Log.d(TAG, "gonna resolve service now");
-                    mNsdManager.resolveService(service, mResolveListener);
+                   mNsdManager.resolveService(service, mResolveListener);
                 }
             }
 
@@ -194,8 +193,8 @@ public class NSDHelper {
         };
     }
 
-    public NsdManager.ResolveListener initializeResolveListener() {
-        return new NsdManager.ResolveListener() {
+    public void initializeResolveListener() {
+        mResolveListener = new NsdManager.ResolveListener() {
 
             @Override
             public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
@@ -223,8 +222,6 @@ public class NSDHelper {
     }
 
     public void tearDown() {
-        mNsdManager.unregisterService(mRegistrationListener);
-        mNsdManager.stopServiceDiscovery(mDiscoveryListener);
         if (mServerSocket != null) {
             try {
                 mServerSocket.close();
@@ -232,7 +229,12 @@ public class NSDHelper {
                 e.printStackTrace();
             }
         }
+        mNsdManager.unregisterService(mRegistrationListener);
+        mNsdManager.stopServiceDiscovery(mDiscoveryListener);
+        mResolveListener = null;
+
         instance = null;
+
     }
 
 
@@ -256,20 +258,12 @@ public class NSDHelper {
 
         Log.d(TAG, "FORMING JSON OBJECT");
 
-        JSONObject jsonData = new JSONObject();
-
-        JSONObject serverData = new JSONObject();
-
         //UserDBHandler handler= UserDBHandler.getInstance(context);
-        try {
-            jsonData.put("user_id", AccessToken.getCurrentAccessToken().getUserId());
-            jsonData.put("name", me_data.getString("name", "hey this is me"));
-            jsonData.put("gender", me_data.getBoolean("gender", true));
-            jsonData.put("age", me_data.getInt("age", 18));
-            jsonData.put("url", me_data.getString("url", "abc"));
+        //try {
+            UserDBHandler handler = new UserDBHandler(context, null, null, 1);
 
-            serverData.put("ipAddress", hostAddress);
-            serverData.put("port", port);
+            User meUser = handler.getUser(AccessToken.getCurrentAccessToken().getUserId());
+            JSONObject meJSON = Constants.constructUserJson(meUser);
 
             //new Thread(new SendDataToServer(jsonData, hostAddress, port)).start();
 
@@ -285,22 +279,29 @@ public class NSDHelper {
                 dataInputStream = new DataInputStream(socket.getInputStream());
 
                 // transfer JSONObject as String to the server
-                dataOutputStream.writeUTF(jsonData.toString());
+                dataOutputStream.writeUTF(meJSON.toString());
                 Log.i(TAG, "waiting for response from host");
 
                 // Thread will wait till server replies
                 boolean success;
 
                 String response = dataInputStream.readUTF();
-                if (response != null && response.equals(AppServer.SERVER_REPLY)) {
-                    Log.e(TAG, "data transaction complete");
-                } else {
-                    Log.e(TAG,"DATA TRANSACTION FAILED");
+                if (response != null) {
+                    Person person = Constants.personJsonToUser(new JSONObject(response));
+                    PeopleDBHandler peopleDBHandler = new PeopleDBHandler(context, null, null, 1);
+                    peopleDBHandler.addUser(person);
+
+                    Intent peopleAroundIntent = new Intent();
+                    peopleAroundIntent.setAction("com.hammad13060.datingapplication.PEOPLE_AROUND_RECEIVER");
+                    context.sendBroadcast(peopleAroundIntent);
+
                 }
 
             } catch (IOException e) {
                 e.printStackTrace();
-            }finally {
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } finally {
 
                 // close socket
                 if (socket != null) {
@@ -331,10 +332,11 @@ public class NSDHelper {
                 }
             }
 
-        } catch (JSONException e) {
+        //}
+        /*catch (JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "can't put request");
             return;
-        }
+        }*/
     }
 }

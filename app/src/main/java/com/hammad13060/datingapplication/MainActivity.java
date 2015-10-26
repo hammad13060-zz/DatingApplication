@@ -85,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.action_discovery_preference) {
             Intent intent = new Intent(this, PreferenceActivity.class);
             startActivity(intent);
+        } else if (id == R.id.action_logout) {
+            /*Intent intent = new Intent(this,LoginActivity.class);
+            startActivity(intent);*/
         }
 
         return super.onOptionsItemSelected(item);
@@ -202,4 +205,8 @@ public class MainActivity extends AppCompatActivity {
     }*/
 
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 }

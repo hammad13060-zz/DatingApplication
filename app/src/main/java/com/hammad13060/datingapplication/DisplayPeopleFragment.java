@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -45,6 +46,12 @@ import java.util.prefs.PreferenceChangeEvent;
  */
 public class DisplayPeopleFragment extends Fragment {
 
+    private static final String TAG = "DisplayPeopleFragment";
+
+    private List<Person> peopleAround = null;
+
+    Person currentPerson = null;
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -57,6 +64,7 @@ public class DisplayPeopleFragment extends Fragment {
 
     private View myView = null;
 
+    private boolean status = false;
     private OnFragmentInteractionListener mListener;
 
     /**
@@ -67,6 +75,7 @@ public class DisplayPeopleFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment DisplayPeopleFragment.
      */
+
     // TODO: Rename and change types and number of parameters
     public static DisplayPeopleFragment newInstance(String param1, String param2) {
         DisplayPeopleFragment fragment = new DisplayPeopleFragment();
@@ -82,6 +91,7 @@ public class DisplayPeopleFragment extends Fragment {
     }
 
     private NSDHelper mNSDHelper = null;
+    private PeopleAroundReceiver peopleAroundReceiver = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,6 +101,8 @@ public class DisplayPeopleFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+        status = false;
+
 
     }
 
@@ -99,6 +111,20 @@ public class DisplayPeopleFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         myView = inflater.inflate(R.layout.fragment_display_people, container, false);
+        ((Button)myView.findViewById(R.id.like_button)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteCurrentUser();
+            }
+        });
+
+        ((Button)myView.findViewById(R.id.ignore_button)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteCurrentUser();
+            }
+        });
+
         return myView;
     }
 
@@ -122,12 +148,16 @@ public class DisplayPeopleFragment extends Fragment {
 
     @Override
     public void onResume() {
+
         super.onResume();
+        registerPeopleAroundReceiver();
+        updateLayout();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        unregisterPeopleAroundReceiver();
     }
 
     @Override
@@ -159,5 +189,65 @@ public class DisplayPeopleFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+    }
+
+    private void registerPeopleAroundReceiver() {
+        IntentFilter filter = new IntentFilter("com.hammad13060.datingapplication.PEOPLE_AROUND_RECEIVER");
+        peopleAroundReceiver = new PeopleAroundReceiver();
+        getActivity().registerReceiver(peopleAroundReceiver, filter);
+    }
+
+    private void unregisterPeopleAroundReceiver() {
+        getActivity().unregisterReceiver(peopleAroundReceiver);
+    }
+
+    //updating layout at runtime
+    private void updateLayout() {
+        if (peopleAround ==null || peopleAround.size() <= 0){
+            getPeople();
+        }
+        LinearLayout no_people_around = (LinearLayout)myView.findViewById(R.id.no_people_around);
+        LinearLayout people_around = (LinearLayout)myView.findViewById(R.id.people_around);
+        if (peopleAround.size() <= 0) {
+            people_around.setVisibility(View.GONE);
+            no_people_around.setVisibility(View.VISIBLE);
+            status = false;
+        } else {
+            no_people_around.setVisibility(View.GONE);
+            people_around.setVisibility(View.VISIBLE);
+            status = true;
+            setCurrentUser();
+        }
+    }
+
+    private class PeopleAroundReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (status == false) {
+                updateLayout();
+            }
+        }
+    }
+
+    private void getPeople() {
+        PeopleDBHandler handler = new PeopleDBHandler(getActivity(), null, null, 1);
+        peopleAround = handler.getAllUser();
+    }
+
+    private void setCurrentUser() {
+        currentPerson = peopleAround.get(0);
+        ImageView profile_image_view = (ImageView)myView.findViewById(R.id.profile_image_view);
+
+                Picasso
+                .with(getActivity())
+                .load(currentPerson.get_url())
+                .into(profile_image_view);
+    }
+
+    private void deleteCurrentUser() {
+        peopleAround.remove(0);
+        PeopleDBHandler handler = new PeopleDBHandler(getActivity(), null, null, 1);
+        handler.deleteUser(currentPerson.get_user_id());
+        updateLayout();
     }
 }

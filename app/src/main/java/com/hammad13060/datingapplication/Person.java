@@ -1,9 +1,10 @@
 package com.hammad13060.datingapplication;
 
 /**
- * Created by Hammad on 19-10-2015.
+ * Created by Hammad on 26-10-2015.
  */
-public class User {
+public class Person {
+
     int _id;
     String _user_id;
     String _name;
@@ -11,14 +12,12 @@ public class User {
     boolean _gender;
     String _url;
 
-
-    // empty constructor
-    public User() {
+    public Person() {
 
     }
 
     // constructor
-    public User(String user_id, String name, boolean gender, int age, String url) {
+    public Person(String user_id, String name, boolean gender, int age, String url) {
         this._user_id = user_id;
         this._name = name;
         this._age = age;

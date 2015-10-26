@@ -7,4 +7,7 @@
     <item android:id="@+id/action_discovery_preference"
         android:title="@string/action_discovery_preference"
         datingapplication:showAsAction="never"/>
+    <item android:id="@+id/action_logout"
+        android:title="logout"
+        datingapplication:showAsAction="never"/>
 </menu>

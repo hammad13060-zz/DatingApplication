@@ -1,8 +1,11 @@
 package com.hammad13060.datingapplication;
 
 import android.content.Context;
+import android.content.Intent;
 import android.provider.ContactsContract;
 import android.util.Log;
+
+import com.facebook.AccessToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,16 +62,26 @@ public class AppServer {
                         String response = inputStream.readUTF();
 
                         try {
+                            //data of person around
                             JSONObject user_data = new JSONObject(response);
-                            User person = new User(
-                                    user_data.getString("user_id"),
-                                    user_data.getString("name"),
-                                    user_data.getBoolean("gender"),
-                                    user_data.getInt("age"),
-                                    user_data.getString("url")
-                            );
-                            Log.e(TAG, "received data of ==> " + person.toString());
-                            outputStream.writeUTF(SERVER_REPLY);
+                            Person user = Constants.personJsonToUser(user_data);
+                            Log.e(TAG, "received data of ==> " + user.toString());
+                            PeopleDBHandler peopleDBHandler = new PeopleDBHandler(context, null, null, 1);
+                            peopleDBHandler.addUser(user);
+
+                            Intent peopleAroundIntent = new Intent();
+                            peopleAroundIntent.setAction("com.hammad13060.datingapplication.PEOPLE_AROUND_RECEIVER");
+                            context.sendBroadcast(peopleAroundIntent);
+
+
+                            //relaying me data of app user
+                            UserDBHandler handler = new UserDBHandler(context, null, null, 1);
+
+                            User meUser = handler.getUser(AccessToken.getCurrentAccessToken().getUserId());
+                            JSONObject meJSON = Constants.constructUserJson(meUser);
+
+                            outputStream.writeUTF(meJSON.toString());
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

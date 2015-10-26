@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,149 +16,141 @@ import java.util.List;
  * Created by Hammad on 21-10-2015.
  */
 public class PeopleDBHandler extends SQLiteOpenHelper {
-    // All Static variables
-    // Database Version
-    private Context activity = null;
-    private static final int DATABASE_VERSION = 1;
+    private Context context = null;
 
-    // Database Name
-    private static final String DATABASE_NAME = "dating_application.db";
+    private static final int DATABASE_VERSION = 14;
+    private static final String DATABASE_NAME = "dating_application_people.db";
+    private static final String TABLE_PEOPLE = "peoples";
 
-    // Contacts table name
-    private static final String TABLE_PEOPLE = "people";
+    private static final String COLUMN_ID = "_id";
+    private static final String COLUMN_USER_ID = "user_id";
+    private static final String COLUMN_NAME = "name";
+    private static final String COLUMN_GENDER = "gender";
+    private static final String COLUMN_AGE = "age";
+    private static final String COLUMN_URL = "url";
 
-    //table columns
-    private static final String USER_ID = "user_id";
-    private static final String NAME = "name";
-    private static final String GENDER = "gender";
-    private static final String AGE = "age";
-    private static final String URL = "url";
-
-
-    private static PeopleDBHandler instance = null;
-    private static Object mutex= new Object();
-
-    private PeopleDBHandler(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        this.activity = context;
-    }
-
-    public static PeopleDBHandler getInstance(Context context) {
-        if (instance == null) {
-            synchronized (mutex) {
-              if (instance == null)  instance = new PeopleDBHandler(context.getApplicationContext());
-            }
-        }
-
-        return instance;
+    public PeopleDBHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+        super(context, DATABASE_NAME, factory, DATABASE_VERSION);
+        this.context = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_USERS_TABLE = "CREATE TABLE " + TABLE_PEOPLE + "( " +
-                USER_ID + " VARCHAR(255) PRIMARY KEY NOT NULL," +
-                NAME + " TEXT NOT NULL, " +
-                GENDER + " BOOLEAN , " +
-                AGE + " INTEGER NOT NULL, " +
-                URL + " TEXT NOT NULL " +
-                ")";
+        String CREATE_USERS_TABLE = "CREATE TABLE " + TABLE_PEOPLE + " ( " +
+                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_USER_ID + " VARCHAR(255), " +
+                COLUMN_NAME + " TEXT, " +
+                COLUMN_GENDER + " BOOLEAN, " +
+                COLUMN_AGE + " INTEGER, " +
+                COLUMN_URL + " VARCHAR(5000) " +
+                ");";
 
         db.execSQL(CREATE_USERS_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PEOPLE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PEOPLE + ";");
 
-        // Create tables again
         onCreate(db);
     }
 
-    public void addUser(User user) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void addUser(Person user) {
+        SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
 
-        values.put(USER_ID, user.get_user_id());
-        values.put(NAME, user.get_name());
-        values.put(GENDER, user.is_gender());
-        values.put(AGE, user.get_age());
-        values.put(URL, user.get_url());
+        values.put(COLUMN_USER_ID, user.get_user_id());
+        values.put(COLUMN_NAME, user.get_name());
+        values.put(COLUMN_GENDER, user.is_gender());
+        values.put(COLUMN_AGE, user.get_age());
+        values.put(COLUMN_URL, user.get_url());
 
-        db.insert(TABLE_PEOPLE, null, values);
+        try {
+            db.insert(TABLE_PEOPLE, null, values);
+            db.close();
+            Log.d("PEOPLE Handler", "User data inserted");
+        } catch(SQLiteException e) {
+            e.printStackTrace();
+        }
 
     }
 
-    public User getUser(String user_id) {
-        SQLiteDatabase db = this.getReadableDatabase();
+    public List<Person> getAllUser() {
+        SharedPreferences user_settings = context.getSharedPreferences(Constants.SHARED_PREFERENCE, Context.MODE_PRIVATE);
+        boolean male_boolean = user_settings.getBoolean("male", true);
+        boolean female_boolean = user_settings.getBoolean("female", true);
 
-        Cursor cursor = db.query(TABLE_PEOPLE, new String[] { USER_ID,
-                        NAME, GENDER, AGE, URL }, USER_ID + "=?",
-                new String[] { user_id }, null, null, null, null);
+        String query = "SELECT * FROM " + TABLE_PEOPLE + " WHERE ";
+        String where_clause = null;
 
-        if (cursor != null)
-            cursor.moveToFirst();
+        if (male_boolean && female_boolean) {
+            where_clause = COLUMN_GENDER  + " is 1 OR " + COLUMN_GENDER + " is 0 ;";
+        } else if (male_boolean) {
+            where_clause = COLUMN_GENDER + " is 0 ;";
+        } else if (female_boolean) {
+            where_clause = COLUMN_GENDER  + " is 1 ;";
+        }
 
-        User user = new User(
-                cursor.getString(0),
-                cursor.getString(1),
-                Boolean.parseBoolean(cursor.getString(2)),
-                Integer.parseInt(cursor.getString(3)),
-                cursor.getString(4)
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor c = db.rawQuery(query + where_clause, null);
+
+        c.moveToFirst();
+
+        List<Person> peopleAround = new ArrayList<>(0);
+
+        while(!c.isAfterLast()){
+            String user_id = c.getString(c.getColumnIndex(COLUMN_USER_ID));
+            String name = c.getString(c.getColumnIndex(COLUMN_NAME));
+            boolean gender = new Boolean(c.getString(c.getColumnIndex(COLUMN_GENDER))).booleanValue();
+            int age = c.getInt(c.getColumnIndex(COLUMN_AGE));
+            String url = c.getString(c.getColumnIndex(COLUMN_URL));
+
+            Person newUser = new Person(
+                    user_id,
+                    name,
+                    gender,
+                    age,
+                    url
+            );
+
+            peopleAround.add(newUser);
+            c.moveToNext();
+        }
+
+        return peopleAround;
+    }
+
+    public Person getUser(String user_id) {
+        String query = "SELECT * FROM " + TABLE_PEOPLE + " WHERE " + COLUMN_USER_ID + "=\'" + user_id +"\';";
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = db.rawQuery(query, null);
+
+        c.moveToFirst();
+
+        String userId = c.getString(c.getColumnIndex(COLUMN_USER_ID));
+        String name = c.getString(c.getColumnIndex(COLUMN_NAME));
+        boolean gender = new Boolean(c.getString(c.getColumnIndex(COLUMN_GENDER))).booleanValue();
+        int age = c.getInt(c.getColumnIndex(COLUMN_AGE));
+        String url = c.getString(c.getColumnIndex(COLUMN_URL));
+
+        Person user = new Person(
+                userId,
+                name,
+                gender,
+                age,
+                url
         );
 
         return user;
     }
 
-    public List<User> getAllUser() {
-        SharedPreferences pref = activity.getSharedPreferences(Constants.SHARED_PREFERENCE, Context.MODE_PRIVATE);
-
-        boolean male = pref.getBoolean("male", true);
-        boolean female = pref.getBoolean("female", true);
-
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        List<User> list = new ArrayList<User>(0);
-
-        String query = null;
-        String[] comparison = null;
-
-        if (male == true && female == false) {
-            query = GENDER + "=?";
-            comparison = new String[] {"No"};
-        } else if (male == false && female == true) {
-            query = GENDER + "=?";
-            comparison = new String[] {"Yes"};
-        } else if (male && female) {
-            query = GENDER + "=? OR " + GENDER + "=?";
-            comparison = new String[] {"No", "Yes"};
-        } else {
-            return list;
-        }
-
-        Cursor cursor = db.query(TABLE_PEOPLE, new String[] { USER_ID,
-                        NAME, GENDER, AGE, URL }, query,
-                comparison, null, null, null, null);
-
-        while(cursor.moveToNext()) {
-            User user = new User(
-                    cursor.getString(0),
-                    cursor.getString(1),
-                    Boolean.parseBoolean(cursor.getString(2)),
-                    Integer.parseInt(cursor.getString(3)),
-                    cursor.getString(4)
-            );
-
-            list.add(user);
-        }
-
-        return list;
+    public void deleteUser(String user_id) {
+        String query = "DELETE FROM " + TABLE_PEOPLE + " WHERE " + COLUMN_USER_ID + "=\'" + user_id + "\';";
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL(query);
+        db.close();
     }
 
-    public void removeUser(String user_id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String sql = "DELETE FROM " + TABLE_PEOPLE + " WHERE " + USER_ID + "=" + user_id;
-        db.execSQL(sql);
-    }
 }
