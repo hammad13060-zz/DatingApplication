@@ -10,13 +10,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TableLayout;
 
 public class DisplayActivity extends MainActivity {
 
     private DisplayActivityPagerAdapter mAdapter;
     private ViewPager mPager;
     private ActionBar actionBar = null;
-
     private AppServer myServer = null;
     private NSDHelper mNSDHelper = null;
     @Override

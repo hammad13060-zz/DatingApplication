@@ -1,7 +1,9 @@
 package com.hammad13060.datingapplication;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -13,8 +15,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -85,6 +90,29 @@ public class LoginActivity extends FragmentActivity {
         //setting the layout
         setContentView(R.layout.activity_login);
 
+        Button clickButton = (Button) findViewById(R.id.inst);
+        final TypedValue typedValue = new TypedValue();
+        clickButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                String mssg = "1.Login with facebook.\n2.This app will work only if other users are also on the same wifi network.";
+                AlertDialog.Builder myAlert = new AlertDialog.Builder(LoginActivity.this);
+
+                myAlert.setMessage(mssg)
+                        .setNeutralButton("Continue..", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setTitle("!Instructions For You!")
+                        .setIcon(typedValue.resourceId)
+                        .create();
+                myAlert.show();
+
+            }
+        });
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
@@ -226,7 +254,7 @@ public class LoginActivity extends FragmentActivity {
 
     //function to enter main app
     private void enterMainApp() {
-        Intent intent = new Intent(this, DisplayActivity.class);
+        Intent intent = new Intent(this, MainFragment.class);
         startActivity(intent);
         finish();
     }
