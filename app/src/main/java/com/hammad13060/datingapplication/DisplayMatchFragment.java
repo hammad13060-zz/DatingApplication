@@ -50,6 +50,8 @@ public class DisplayMatchFragment extends Fragment {
     public DisplayMatchFragment() {
         // Required empty public constructor
     }
+    
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
