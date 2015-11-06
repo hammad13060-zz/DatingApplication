@@ -19,6 +19,12 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
+import com.facebook.AccessToken;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -45,6 +51,8 @@ import java.util.prefs.PreferenceChangeEvent;
  * create an instance of this fragment.
  */
 public class DisplayPeopleFragment extends Fragment {
+
+    private static final String WEB_URL = Constants.WEB_SERVER_URL + "/register_user_like.php";
 
     private static final String TAG = "DisplayPeopleFragment";
 
@@ -111,7 +119,7 @@ public class DisplayPeopleFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         myView = inflater.inflate(R.layout.fragment_display_people, container, false);
-        ((Button)myView.findViewById(R.id.like_button)).setOnClickListener(new View.OnClickListener() {
+        /*((Button)myView.findViewById(R.id.like_button)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deleteCurrentUser();
@@ -123,7 +131,7 @@ public class DisplayPeopleFragment extends Fragment {
             public void onClick(View v) {
                 deleteCurrentUser();
             }
-        });
+        });*/
 
         return myView;
     }
@@ -151,6 +159,7 @@ public class DisplayPeopleFragment extends Fragment {
 
         super.onResume();
         registerPeopleAroundReceiver();
+        getPeople();
         updateLayout();
     }
 
@@ -222,7 +231,8 @@ public class DisplayPeopleFragment extends Fragment {
 
     private class PeopleAroundReceiver extends BroadcastReceiver {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void
+        onReceive(Context context, Intent intent) {
             if (status == false) {
                 updateLayout();
             }
@@ -250,4 +260,66 @@ public class DisplayPeopleFragment extends Fragment {
         handler.deleteUser(currentPerson.get_user_id());
         updateLayout();
     }
+
+    private void registerLike() {
+        //logged in user id
+        String user_id_1 = AccessToken.getCurrentAccessToken().getUserId();
+
+        //user id of person liked
+        String user_id_2 = currentPerson.get_user_id();
+
+        JSONObject user_request = new JSONObject();
+        try {
+            user_request.put("user_id_1", user_id_1);
+            user_request.put("user_id_2", user_id_2);
+            sendRequest(user_request);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void sendRequest(JSONObject object) {
+
+        //volley request object
+        RequestQueue volleyRequest = Volley.newRequestQueue(getActivity());
+
+        Response.Listener<JSONObject> responseListener = new Response.Listener<JSONObject>(){
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    boolean success = response.getBoolean("success");
+                    Log.d(TAG, "like registration: " + success);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Response.ErrorListener errorListener = new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, "LIKE REGISTRATION FAILED");
+            }
+        };
+
+        JSONRequest request = new JSONRequest(
+                Request.Method.POST, WEB_URL, null,
+                responseListener, errorListener, object
+        );
+
+        volleyRequest.add(request);
+
+    }
+
+    public void ignoreButtonClickListener(View view) {
+        deleteCurrentUser();
+    }
+
+    public void likeButtonClickListener(View view) {
+        registerLike();
+        deleteCurrentUser();
+    }
+
 }
