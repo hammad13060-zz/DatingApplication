@@ -14,11 +14,14 @@ import java.util.List;
 
 
 
-public class MainFragment extends AppCompatActivity {
+public class MainFragment extends MainActivity {
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+
+    private AppServer myServer = null;
+    private NSDHelper mNSDHelper = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,39 @@ public class MainFragment extends AppCompatActivity {
 
 
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        myServer = new AppServer(this);
+        myServer.initializeServer();
+        myServer.startServer();
+        mNSDHelper = NSDHelper.getInstance(this);
+    }
+
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+
+        if (myServer == null) {
+            myServer = new AppServer(this);
+            myServer.initializeServer();
+            myServer.startServer();
+        }
+
+        if (mNSDHelper == null) {
+            mNSDHelper = NSDHelper.getInstance(this);
+        }
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        myServer.killServer();
+        mNSDHelper.tearDown();
     }
 
     private void setupViewPager(ViewPager viewPager) {

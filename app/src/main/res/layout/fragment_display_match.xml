@@ -6,8 +6,10 @@ android:layout_width="match_parent"
 android:layout_height="wrap_content"
 tools:context="com.hammad13060.datingapplication.DisplayMatchFragment">
 
-<!-- place your view here -->
-<TextView android:layout_width="match_parent" android:layout_height="match_parent"
-    android:text="@string/hello_blank_fragment" />
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/listView">
 
+    </ListView>
 </android.support.v4.widget.SwipeRefreshLayout>

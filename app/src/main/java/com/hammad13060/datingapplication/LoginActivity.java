@@ -90,7 +90,7 @@ public class LoginActivity extends FragmentActivity {
         //setting the layout
         setContentView(R.layout.activity_login);
 
-        Button clickButton = (Button) findViewById(R.id.inst);
+        /*Button clickButton = (Button) findViewById(R.id.inst);
         final TypedValue typedValue = new TypedValue();
         clickButton.setOnClickListener(new View.OnClickListener() {
 
@@ -112,7 +112,7 @@ public class LoginActivity extends FragmentActivity {
                 myAlert.show();
 
             }
-        });
+        });*/
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);

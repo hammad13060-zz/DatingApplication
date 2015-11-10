@@ -119,9 +119,10 @@ public class DisplayPeopleFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         myView = inflater.inflate(R.layout.fragment_display_people, container, false);
-        /*((Button)myView.findViewById(R.id.like_button)).setOnClickListener(new View.OnClickListener() {
+        ((Button)myView.findViewById(R.id.like_button)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                registerLike();
                 deleteCurrentUser();
             }
         });
@@ -131,7 +132,7 @@ public class DisplayPeopleFragment extends Fragment {
             public void onClick(View v) {
                 deleteCurrentUser();
             }
-        });*/
+        });
 
         return myView;
     }
@@ -313,13 +314,13 @@ public class DisplayPeopleFragment extends Fragment {
 
     }
 
-    public void ignoreButtonClickListener(View view) {
+    /*public void ignoreButtonClickListener(View view) {
         deleteCurrentUser();
     }
 
     public void likeButtonClickListener(View view) {
         registerLike();
         deleteCurrentUser();
-    }
+    }*/
 
 }

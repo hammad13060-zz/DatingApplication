@@ -15,7 +15,7 @@ import java.util.Objects;
 public class Constants {
     public static final String SHARED_PREFERENCE = "com.hammad13060.datingapplication.USER_PREFERENCE";
     public static final String USER_DATA = "com.hammad13060.datingapplication.USER_DATA";
-    public static final String WEB_SERVER_URL = "http://192.168.51.125/DatingApplication";
+    public static final String WEB_SERVER_URL = "http://10.0.0.5/DatingApplication";
 
 
     public static List<User> peopleAround = null;
