@@ -165,7 +165,7 @@ public class DisplayMatchFragment extends Fragment implements SwipeRefreshLayout
                                     match_object.getString("url")
                             );
 
-                            matchList.add(match);
+                            if (!personExists(matchList, match))matchList.add(match);
 
 
                         }
@@ -211,6 +211,16 @@ public class DisplayMatchFragment extends Fragment implements SwipeRefreshLayout
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean personExists(List<Person> matchList, Person match) {
+        for (Person existingMatch: matchList) {
+            if (existingMatch.get_user_id().equals(match.get_user_id())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
