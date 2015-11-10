@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.hammad13060.datingapplication.R;
+import com.sinch.android.rtc.SinchClient;
 
 public class ChatActivity extends AppCompatActivity {
 

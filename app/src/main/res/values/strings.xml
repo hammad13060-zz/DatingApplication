@@ -15,4 +15,8 @@
     <string name="title_activity_splash_screen">SplashScreen</string>
     <string name="title_activity_main_fragment">MainFragment</string>
     <string name="title_activity_chat">ChatActivity</string>
+
+    <!-- sinch skd details -->
+    <string name="sinch_app_key">12345</string>
+    <string name="sinch_app_secret">6789</string>
 </resources>
