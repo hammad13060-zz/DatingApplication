@@ -6,7 +6,7 @@
     android:paddingRight="10dp"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.hammad13060.datingapplication.DisplayPeopleFragment">
+    tools:context="com.hammad13060.datingapplication.Fragments.DisplayPeopleFragment">
 
     <LinearLayout
         android:layout_width="match_parent"

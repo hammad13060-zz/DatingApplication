@@ -1,4 +1,4 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.DBEntity;
 
 /**
  * Created by Hammad on 19-10-2015.

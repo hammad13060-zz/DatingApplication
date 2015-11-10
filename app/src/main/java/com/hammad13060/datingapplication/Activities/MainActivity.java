@@ -1,23 +1,18 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.Activities;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.hammad13060.datingapplication.R;
 
 import java.util.Arrays;
 

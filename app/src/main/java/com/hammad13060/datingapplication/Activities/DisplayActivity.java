@@ -1,16 +1,13 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.Activities;
 
 import android.app.ActionBar;
-import android.net.Uri;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.TableLayout;
+
+import com.hammad13060.datingapplication.Adapters.DisplayActivityPagerAdapter;
+import com.hammad13060.datingapplication.helper.NSDHelper;
+import com.hammad13060.datingapplication.R;
+import com.hammad13060.datingapplication.helper.AppServer;
 
 public class DisplayActivity extends MainActivity {
 

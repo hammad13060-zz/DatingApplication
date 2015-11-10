@@ -1,16 +1,17 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.helper;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
-import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
-import android.text.format.Formatter;
 import android.util.Log;
 
 import com.facebook.AccessToken;
+import com.hammad13060.datingapplication.DBEntity.Person;
+import com.hammad13060.datingapplication.DBEntity.User;
+import com.hammad13060.datingapplication.DBHandlers.PeopleDBHandler;
+import com.hammad13060.datingapplication.DBHandlers.UserDBHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;

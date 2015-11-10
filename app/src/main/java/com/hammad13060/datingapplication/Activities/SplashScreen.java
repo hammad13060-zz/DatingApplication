@@ -1,10 +1,12 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.Activities;
 
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
+import com.hammad13060.datingapplication.R;
 
 public class SplashScreen extends Activity {
 

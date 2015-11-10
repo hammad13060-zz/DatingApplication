@@ -1,14 +1,7 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.Activities;
 
-import android.annotation.TargetApi;
-import android.media.Image;
-import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,13 +10,13 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphRequestBatch;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.hammad13060.datingapplication.Activities.MainActivity;
+import com.hammad13060.datingapplication.R;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
-import java.util.List;
 import java.util.Set;
 
 public class UserProfileActivity extends MainActivity {

@@ -1,13 +1,15 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.helper;
 
 import android.util.Log;
+
+import com.hammad13060.datingapplication.DBEntity.Person;
+import com.hammad13060.datingapplication.DBEntity.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by Hammad on 22-10-2015.

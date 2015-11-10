@@ -1,11 +1,15 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.helper;
 
 import android.content.Context;
 import android.content.Intent;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.facebook.AccessToken;
+import com.hammad13060.datingapplication.DBEntity.Person;
+import com.hammad13060.datingapplication.DBEntity.User;
+import com.hammad13060.datingapplication.DBHandlers.PeopleDBHandler;
+import com.hammad13060.datingapplication.DBHandlers.UserDBHandler;
+import com.hammad13060.datingapplication.helper.Constants;
 
 import org.json.JSONException;
 import org.json.JSONObject;

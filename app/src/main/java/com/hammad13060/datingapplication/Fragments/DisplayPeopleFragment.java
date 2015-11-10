@@ -1,21 +1,17 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.Fragments;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -25,21 +21,18 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.facebook.AccessToken;
+import com.hammad13060.datingapplication.DBEntity.Person;
+import com.hammad13060.datingapplication.DBHandlers.PeopleDBHandler;
+import com.hammad13060.datingapplication.R;
+import com.hammad13060.datingapplication.helper.Constants;
+import com.hammad13060.datingapplication.helper.JSONRequest;
+import com.hammad13060.datingapplication.helper.NSDHelper;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
-import java.util.prefs.PreferenceChangeEvent;
 
 
 /**

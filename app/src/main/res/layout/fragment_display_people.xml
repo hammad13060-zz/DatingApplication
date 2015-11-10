@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    tools:context="com.hammad13060.datingapplication.DisplayPeopleFragment">
+    tools:context="com.hammad13060.datingapplication.Fragments.DisplayPeopleFragment">
 
     <LinearLayout
         android:id="@+id/people_around"

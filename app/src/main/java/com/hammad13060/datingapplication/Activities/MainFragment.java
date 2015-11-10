@@ -1,4 +1,4 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.Activities;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -6,8 +6,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+
+import com.hammad13060.datingapplication.Fragments.DisplayMatchFragment;
+import com.hammad13060.datingapplication.Fragments.DisplayPeopleFragment;
+import com.hammad13060.datingapplication.Fragments.DisplayProfileFragment;
+import com.hammad13060.datingapplication.R;
+import com.hammad13060.datingapplication.helper.AppServer;
+import com.hammad13060.datingapplication.helper.NSDHelper;
 
 import java.util.ArrayList;
 import java.util.List;

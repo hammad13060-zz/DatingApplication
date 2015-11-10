@@ -1,10 +1,9 @@
-package com.hammad13060.datingapplication.helper;
+package com.hammad13060.datingapplication.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +12,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.hammad13060.datingapplication.ChatActivity;
-import com.hammad13060.datingapplication.Person;
+import com.hammad13060.datingapplication.Activities.ChatActivity;
+import com.hammad13060.datingapplication.DBEntity.Person;
 import com.hammad13060.datingapplication.R;
 import com.squareup.picasso.Picasso;
 

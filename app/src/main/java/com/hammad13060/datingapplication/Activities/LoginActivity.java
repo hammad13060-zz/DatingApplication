@@ -1,9 +1,7 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.Activities;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -11,24 +9,16 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -43,19 +33,19 @@ import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.hammad13060.datingapplication.Activities.MainFragment;
+import com.hammad13060.datingapplication.DBEntity.User;
+import com.hammad13060.datingapplication.DBHandlers.UserDBHandler;
+import com.hammad13060.datingapplication.R;
+import com.hammad13060.datingapplication.helper.Constants;
+import com.hammad13060.datingapplication.helper.JSONRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.ref.ReferenceQueue;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class LoginActivity extends FragmentActivity {
     private static final String WEB_URL = Constants.WEB_SERVER_URL + "/register_user.php";

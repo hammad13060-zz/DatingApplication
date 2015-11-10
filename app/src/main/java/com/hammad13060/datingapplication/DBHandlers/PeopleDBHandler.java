@@ -1,4 +1,4 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.DBHandlers;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,6 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.hammad13060.datingapplication.DBEntity.Person;
+import com.hammad13060.datingapplication.helper.Constants;
 
 import java.util.ArrayList;
 import java.util.List;

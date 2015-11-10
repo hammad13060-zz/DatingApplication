@@ -1,12 +1,13 @@
-package com.hammad13060.datingapplication;
+package com.hammad13060.datingapplication.Adapters;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.ListFragment;
+
+import com.hammad13060.datingapplication.Fragments.DisplayMatchFragment;
+import com.hammad13060.datingapplication.Fragments.DisplayPeopleFragment;
+import com.hammad13060.datingapplication.Fragments.DisplayProfileFragment;
 
 /**
  * Created by Hammad on 20-10-2015.
