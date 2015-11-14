@@ -17,6 +17,6 @@
     <string name="title_activity_chat">ChatActivity</string>
 
     <!-- sinch skd details -->
-    <string name="sinch_app_key">12345</string>
-    <string name="sinch_app_secret">6789</string>
+    <string name="sinch_app_key">13f4a973-aba1-4828-a5e9-6fb944c92112</string>
+    <string name="sinch_app_secret">XQ5bdfGmQUWGLXHC6k/mWQ==</string>
 </resources>

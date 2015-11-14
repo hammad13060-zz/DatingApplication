@@ -11,6 +11,7 @@ public class Person {
     int _age;
     boolean _gender;
     String _url;
+    private String _chat_id;
 
     public Person() {
 
@@ -47,6 +48,8 @@ public class Person {
         return _url;
     }
 
+    public String get_chat_id() {return _chat_id;}
+
     public void set_id(int _id) {
         this._id = _id;
     }
@@ -71,6 +74,7 @@ public class Person {
         this._url = _url;
     }
 
+    public void set_chat_id(String _chat_id){this._chat_id = _chat_id;}
 
     public String toString() {
         return "name: " + _name + " gender: " + _gender + " user_id: " + _user_id;

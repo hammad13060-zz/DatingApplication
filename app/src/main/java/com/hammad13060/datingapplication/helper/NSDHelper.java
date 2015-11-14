@@ -35,10 +35,10 @@ public class NSDHelper {
 
     private static NSDHelper instance = null;
 
-    private static NsdServiceInfo mService = null;
-    private static NsdManager mNsdManager = null;
-    private static ServerSocket mServerSocket = null;
-    private static int mLocalPort;
+    private  NsdServiceInfo mService = null;
+    private NsdManager mNsdManager = null;
+    private ServerSocket mServerSocket = null;
+    private int mLocalPort;
 
     private static String mServiceName = "dating_application";
     private static final String SERVICE_NAME = "dating_application";
@@ -47,9 +47,9 @@ public class NSDHelper {
 
     Context context = null;
 
-    private static NsdManager.RegistrationListener mRegistrationListener = null;
-    private static NsdManager.DiscoveryListener mDiscoveryListener = null;
-    private static NsdManager.ResolveListener mResolveListener = null;
+    private NsdManager.RegistrationListener mRegistrationListener = null;
+    private NsdManager.DiscoveryListener mDiscoveryListener = null;
+    private  NsdManager.ResolveListener mResolveListener = null;
 
     private NSDHelper(Context context) {
 
@@ -77,11 +77,13 @@ public class NSDHelper {
     public void registerService() {
 
         personConnected = new HashMap<>();
+
+        mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
         // Create the NsdServiceInfo object, and populate it.
             initializeServerSocket();
             initializeRegistrationListener();
-            initializeDiscoveryListener();
             initializeResolveListener();
+            initializeDiscoveryListener();
 
             mService = new NsdServiceInfo();
 
@@ -91,7 +93,6 @@ public class NSDHelper {
             mService.setServiceType(SERVICE_TYPE);
             mService.setPort(mLocalPort);
 
-            mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
             mNsdManager.registerService(
                     mService, NsdManager.PROTOCOL_DNS_SD, mRegistrationListener);
 

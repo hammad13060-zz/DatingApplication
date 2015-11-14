@@ -30,4 +30,7 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.android.support:design:23.0.1'
     compile files('F:/android/DatingApplication/libs/sinch-android-rtc-3.7.1.jar')
+    compile 'com.parse.bolts:bolts-android:1.+'
+    compile 'com.parse:parse-android:1.+'
+    compile files('F:/android/DatingApplication/library/libs/sinch-android-rtc-3.7.1.jar')
 }

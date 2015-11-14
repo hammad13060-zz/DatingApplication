@@ -22,7 +22,7 @@ import com.hammad13060.datingapplication.DBEntity.Person;
 import com.hammad13060.datingapplication.R;
 import com.hammad13060.datingapplication.helper.Constants;
 import com.hammad13060.datingapplication.helper.JSONRequest;
-import com.hammad13060.datingapplication.Adapters.SwipeListAdapter;
+import com.hammad13060.datingapplication.Adapters.SwipeMatchListAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,6 +42,10 @@ import java.util.List;
  */
 public class DisplayMatchFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
+    public static final String EXTRA_RECIPIENT_USER_ID = "com.hammad13060.datingapplication.Fragments.RECIPIENT_USER_ID";
+    public static final String EXTRA_RECIPIENT_USER_NAME = "com.hammad13060.datingapplication.Fragments.RECIPIENT_NAME";
+    public static final String EXTRA_CHAT_ID = "com.hammad13060.datingapplication.Fragments.CHAT_ID";
+
     private static final String TAG = "DisplayMatchFragment";
     private static final String WEB_URL = Constants.WEB_SERVER_URL + "/get_matches.php";
     // TODO: Rename parameter arguments, choose names that match
@@ -56,7 +60,7 @@ public class DisplayMatchFragment extends Fragment implements SwipeRefreshLayout
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private ListView listView;
-    private SwipeListAdapter adapter;
+    private SwipeMatchListAdapter adapter;
     private List<Person> matchList;
 
     private View myView;
@@ -107,7 +111,7 @@ public class DisplayMatchFragment extends Fragment implements SwipeRefreshLayout
         swipeRefreshLayout = (SwipeRefreshLayout) myView.findViewById(R.id.swipe_refresh_layout);
 
         matchList = new ArrayList<>();
-        adapter = new SwipeListAdapter(getActivity(), matchList);
+        adapter = new SwipeMatchListAdapter(getActivity(), matchList);
 
         listView.setAdapter(adapter);
 
@@ -164,6 +168,8 @@ public class DisplayMatchFragment extends Fragment implements SwipeRefreshLayout
                                     match_object.getInt("age"),
                                     match_object.getString("url")
                             );
+
+                            match.set_chat_id(match_object.getString("chat_id"));
 
                             if (!personExists(matchList, match))matchList.add(match);
 

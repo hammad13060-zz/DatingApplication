@@ -1,0 +1,41 @@
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mlns="http://schemas.android.com/apk/res-auto">
+
+
+        <!-- scroll view for message display -->
+        <!--ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="9"-->
+            <ListView
+                android:id="@+id/listView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="9">
+
+            </ListView>
+        <!--/ScrollView-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+                <EditText
+                    android:hint="enter your message"
+                    android:id="@+id/message_text_box"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:text="send"
+                    android:id="@+id/send_button"
+                    android:layout_width="30dp"
+                    android:layout_height="match_parent"
+                    android:onClick="onSendButtonClicked"/>
+        </LinearLayout>
+    </LinearLayout>

@@ -10,6 +10,5 @@ tools:context="com.hammad13060.datingapplication.Fragments.DisplayMatchFragment"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/listView">
-
     </ListView>
 </android.support.v4.widget.SwipeRefreshLayout>

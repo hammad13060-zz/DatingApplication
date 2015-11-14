@@ -13,6 +13,7 @@ import com.hammad13060.datingapplication.Fragments.DisplayPeopleFragment;
 import com.hammad13060.datingapplication.Fragments.DisplayProfileFragment;
 import com.hammad13060.datingapplication.R;
 import com.hammad13060.datingapplication.helper.AppServer;
+import com.hammad13060.datingapplication.helper.MessageClientHelper;
 import com.hammad13060.datingapplication.helper.NSDHelper;
 
 import java.util.ArrayList;
@@ -75,13 +76,15 @@ public class MainFragment extends MainActivity {
             mNSDHelper = NSDHelper.getInstance(this);
         }
 
+        MessageClientHelper.getInstance(getApplicationContext());
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        myServer.killServer();
         mNSDHelper.tearDown();
+        myServer.killServer();
     }
 
     private void setupViewPager(ViewPager viewPager) {

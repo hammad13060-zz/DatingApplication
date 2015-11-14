@@ -39,6 +39,7 @@ import com.hammad13060.datingapplication.DBHandlers.UserDBHandler;
 import com.hammad13060.datingapplication.R;
 import com.hammad13060.datingapplication.helper.Constants;
 import com.hammad13060.datingapplication.helper.JSONRequest;
+import com.hammad13060.datingapplication.helper.MessageClientHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,7 +73,7 @@ public class LoginActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // for finding key hash of dev environment
-        Log.i(TAG, printKeyHash(this));
+        //Log.i(TAG, printKeyHash(this));
         pref = getSharedPreferences(Constants.SHARED_PREFERENCE, Context.MODE_PRIVATE);
         //initializing facebook sdk
         FacebookSdk.sdkInitialize(this.getApplicationContext());
@@ -108,7 +109,7 @@ public class LoginActivity extends FragmentActivity {
             StrictMode.setThreadPolicy(policy);
         }
 
-        System.setProperty("http.keepAlive", "false");
+        //System.setProperty("http.keepAlive", "false");
 
         //login button reference
         loginButton = (LoginButton) findViewById(R.id.login_button);
@@ -219,6 +220,7 @@ public class LoginActivity extends FragmentActivity {
                 accessToken = loginResult.getAccessToken();
                 requestProfileInfo();
                 enterMainApp();
+
             }
 
             @Override
@@ -246,7 +248,7 @@ public class LoginActivity extends FragmentActivity {
     private void enterMainApp() {
         Intent intent = new Intent(this, MainFragment.class);
         startActivity(intent);
-        finish();
+        //finish();
     }
 
     private void requestProfileInfo() {
@@ -392,14 +394,5 @@ public class LoginActivity extends FragmentActivity {
         );
         UserDBHandler handler = new UserDBHandler(this, null, null, 1);
         handler.addUser(user);
-
-        /*SharedPreferences userSettings = getSharedPreferences(Constants.USER_DATA, Context.MODE_PRIVATE);
-        SharedPreferences.Editor userSettingsEditor = userSettings.edit();
-        userSettingsEditor.putString("user_id", AccessToken.getCurrentAccessToken().getUserId());
-        userSettingsEditor.putString("name", name);
-        userSettingsEditor.putBoolean("gender", gender);
-        userSettingsEditor.putInt("age", age);
-        userSettingsEditor.putString("url", url);
-        userSettingsEditor.commit();*/
     }
 }
