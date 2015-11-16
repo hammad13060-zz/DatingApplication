@@ -10,11 +10,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
 import com.hammad13060.datingapplication.Activities.ChatActivity;
 import com.hammad13060.datingapplication.R;
 import com.hammad13060.datingapplication.helper.MessageClientHelper;
 import com.parse.ParseObject;
 
+import java.lang.reflect.AccessibleObject;
 import java.util.List;
 
 /**
@@ -64,8 +66,15 @@ public class SwipeMessageListAdapter extends BaseAdapter {
 
         ParseObject messageObject = messages.get(position);
         String textMessage = messageObject.getString(MessageClientHelper.MESSAGE_TEXT_MESSAGE);
+        String user_id = messageObject.getString(MessageClientHelper.MESSAGE_SENDER_ID);
 
-        TextView messageTextView = (TextView)convertView.findViewById(R.id.message_text_view);
+        TextView messageTextView = null;
+
+        if (user_id.equals(AccessToken.getCurrentAccessToken().getUserId())) {
+            messageTextView = (TextView)convertView.findViewById(R.id.my_message_text_view);
+        } else {
+            messageTextView = (TextView)convertView.findViewById(R.id.sender_message_text_view);
+        }
 
         messageTextView.setText(textMessage);
 
