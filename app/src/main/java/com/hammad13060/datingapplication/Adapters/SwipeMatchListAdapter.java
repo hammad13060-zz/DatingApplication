@@ -60,18 +60,18 @@ public class SwipeMatchListAdapter extends BaseAdapter {
         if (inflater == null)
             inflater = (LayoutInflater) activity
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (convertView == null)
-            convertView = inflater.inflate(R.layout.list_row, null);
+
+        convertView = inflater.inflate(R.layout.list_row, null);
 
         ImageView match_image = (ImageView) convertView.findViewById(R.id.match_image);
         TextView match_name = (TextView) convertView.findViewById(R.id.match_name);
 
-        match = matchList.get(position);
+        Person match = matchList.get(position);
 
         setPicture(match.get_url(), match_image);
         match_name.setText(match.get_name());
 
-        onMatchClicked(convertView);
+        onMatchClicked(convertView, match);
 
         String color = bgColors[position % bgColors.length];
         match_name.setBackgroundColor(Color.parseColor(color));
@@ -84,9 +84,9 @@ public class SwipeMatchListAdapter extends BaseAdapter {
         Picasso.with(activity).load(url).into(imageView);
     }
 
-    private void onMatchClicked(View view) {
-        RelativeLayout list_row_layout = (RelativeLayout)view.findViewById(R.id.list_row);
-        list_row_layout.setOnClickListener(new View.OnClickListener() {
+    private void onMatchClicked(View view, Person match_given) {
+        final Person match = match_given;
+        view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(activity, ChatActivity.class);

@@ -1,10 +1,12 @@
 package com.hammad13060.datingapplication.helper;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Message;
 import android.util.Log;
 
 import com.facebook.AccessToken;
+import com.hammad13060.datingapplication.BroadcastRecievers.NewMessageBroadcastReceiver;
 import com.hammad13060.datingapplication.Fragments.DisplayMatchFragment;
 import com.hammad13060.datingapplication.R;
 import com.parse.GetCallback;
@@ -39,6 +41,8 @@ import java.util.Objects;
 public class MessageClientHelper {
 
     private static final String TAG = "MessageClientHelper";
+
+    public static final String EXTRA_MESSAGE = "com.hammad13060.datingapplication.helper.MESSAGE";
 
     public static final String HEADER_CHAT_ID = "com.hammad13060.datingapplication.helper.CHAT_ID";
 
@@ -159,7 +163,9 @@ public class MessageClientHelper {
 
             @Override
             public void onIncomingMessage(MessageClient messageClient, com.sinch.android.rtc.messaging.Message message) {
-
+                String chat_id = message.getHeaders().get(HEADER_CHAT_ID);
+                String textMessage = message.getTextBody();
+                sendNewMessageBroadcast(chat_id, textMessage);
             }
 
             @Override
@@ -195,34 +201,24 @@ public class MessageClientHelper {
     }
 
 
-    private void saveTextMessageToParseCloud(final String textMessage, String sender_id, String chat_id) {
+    private void saveTextMessageToParseCloud(final String textMessage, String sender_id, final String chat_id) {
         ParseQuery<ParseObject> query = ParseQuery.getQuery(CLASS_CHAT_DATA);
 
         final ParseObject textMessageObject = new ParseObject(CLASS_MESSAGE);
         textMessageObject.put(MESSAGE_SENDER_ID, sender_id);
         textMessageObject.put(MESSAGE_TEXT_MESSAGE, textMessage);
-        /*try {
-            textMessageObject.save();
-            query.getInBackground(chat_id, new GetCallback<ParseObject>() {
-                @Override
-                public void done(ParseObject object, ParseException e) {
-                    if (e == null) {
-                        object.add("messages", textMessageObject);
-                        object.saveInBackground();
-                    }
-                }
-            });
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }*/
 
         query.getInBackground(chat_id, new GetCallback<ParseObject>() {
             @Override
             public void done(ParseObject object, ParseException e) {
                 if (e == null) {
                     object.add("messages", textMessageObject);
-                    object.saveInBackground();
+                    try {
+                        object.save();
+                        sendNewMessageBroadcast(chat_id, textMessage);
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
                 }
             }
         });
@@ -251,7 +247,7 @@ public class MessageClientHelper {
             //retrieving the list of object containing pointer to messages
             List<ParseObject> chat_message_id_list = chat_data.getList(CHAT_DATA_MESSAGES);
 
-            //query for retrieving relevent list of messages
+            //query for retrieving relavent list of messages
             ParseQuery<ParseObject> message_query = ParseQuery.getQuery(CLASS_MESSAGE);
             //sorting on the basis of createdAt time stamp
             chat_messages = (List<ParseObject>) message_query.whereContainedIn("objectId", getObjectIdList(chat_message_id_list))
@@ -273,8 +269,12 @@ public class MessageClientHelper {
         return objectIdList;
     }
 
-    private void updateDisplayMatchFragmentUI() {
-        if (this.displayMatchFragment != null) {
-        }
+    private void sendNewMessageBroadcast(String chat_id, String textMessage) {
+        Intent newMessageIntent = new Intent();
+        newMessageIntent.setAction(NewMessageBroadcastReceiver.EVENT_NEW_MESSAGE);
+        newMessageIntent.putExtra(DisplayMatchFragment.EXTRA_CHAT_ID, chat_id);
+        newMessageIntent.putExtra(MessageClientHelper.EXTRA_MESSAGE, textMessage);
+
+        context.sendBroadcast(newMessageIntent);
     }
 }

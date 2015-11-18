@@ -35,18 +35,22 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.hammad13060.datingapplication.Activities.MainFragment;
 import com.hammad13060.datingapplication.DBEntity.User;
+import com.hammad13060.datingapplication.DBHandlers.LikedUserDBHandler;
 import com.hammad13060.datingapplication.DBHandlers.UserDBHandler;
 import com.hammad13060.datingapplication.R;
 import com.hammad13060.datingapplication.helper.Constants;
 import com.hammad13060.datingapplication.helper.JSONRequest;
 import com.hammad13060.datingapplication.helper.MessageClientHelper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class LoginActivity extends FragmentActivity {
     private static final String WEB_URL = Constants.WEB_SERVER_URL + "/register_user.php";
@@ -352,6 +356,14 @@ public class LoginActivity extends FragmentActivity {
                         Log.d(TAG, "USER REGISTRATION COMPLETE");
                     } else {
                         Log.d(TAG, "USER ALREADY REGISTERED");
+                        JSONArray like_array = response.getJSONArray("likes");
+                        List<String> like_list = new ArrayList<>();
+                        for (int i = 0; i < like_array.length(); i++) {
+                            String user_id = like_array.getString(i);
+                            like_list.add(user_id);
+                        }
+                        LikedUserDBHandler handler = new LikedUserDBHandler(getApplicationContext(), null, null, 1);
+                        handler.addLikedUserIds(like_list);
                     }
 
                     SharedPreferences.Editor editor = pref.edit();

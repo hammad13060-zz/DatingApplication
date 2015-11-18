@@ -7,6 +7,7 @@ import android.util.Log;
 import com.facebook.AccessToken;
 import com.hammad13060.datingapplication.DBEntity.Person;
 import com.hammad13060.datingapplication.DBEntity.User;
+import com.hammad13060.datingapplication.DBHandlers.LikedUserDBHandler;
 import com.hammad13060.datingapplication.DBHandlers.PeopleDBHandler;
 import com.hammad13060.datingapplication.DBHandlers.UserDBHandler;
 import com.hammad13060.datingapplication.helper.Constants;
@@ -70,12 +71,12 @@ public class AppServer {
                             JSONObject user_data = new JSONObject(response);
                             Person user = Constants.personJsonToUser(user_data);
                             Log.e(TAG, "received data of ==> " + user.toString());
-                            PeopleDBHandler peopleDBHandler = new PeopleDBHandler(context, null, null, 1);
-                            peopleDBHandler.addUser(user);
+                                PeopleDBHandler peopleDBHandler = new PeopleDBHandler(context, null, null, 1);
+                                peopleDBHandler.addUser(user);
 
-                            Intent peopleAroundIntent = new Intent();
-                            peopleAroundIntent.setAction("com.hammad13060.datingapplication.PEOPLE_AROUND_RECEIVER");
-                            context.sendBroadcast(peopleAroundIntent);
+                                Intent peopleAroundIntent = new Intent();
+                                peopleAroundIntent.setAction("com.hammad13060.datingapplication.PEOPLE_AROUND_RECEIVER");
+                                context.sendBroadcast(peopleAroundIntent);
 
 
                             //relaying me data of app user

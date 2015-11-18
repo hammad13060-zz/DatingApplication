@@ -1,6 +1,8 @@
 package com.hammad13060.datingapplication.Activities;
 
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,7 +14,9 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 
 import com.hammad13060.datingapplication.Adapters.SwipeMessageListAdapter;
+import com.hammad13060.datingapplication.BroadcastRecievers.NewMessageBroadcastReceiver;
 import com.hammad13060.datingapplication.Fragments.DisplayMatchFragment;
+import com.hammad13060.datingapplication.Interfaces.UpdateLayoutInterface;
 import com.hammad13060.datingapplication.R;
 import com.hammad13060.datingapplication.helper.MessageClientHelper;
 import com.parse.ParseObject;
@@ -22,7 +26,7 @@ import com.sinch.android.rtc.messaging.MessageClientListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, UpdateLayoutInterface {
 
     private String recipient_user_id = null;
     private String recipient_user_name = null;
@@ -39,39 +43,13 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private SwipeMessageListAdapter adapter = null;
 
+    BroadcastReceiver newMessageBroadcastReceiver = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_1);
 
-        Intent intent = getIntent();
-        recipient_user_id = intent.getStringExtra(DisplayMatchFragment.EXTRA_RECIPIENT_USER_ID);
-        recipient_user_name = intent.getStringExtra(DisplayMatchFragment.EXTRA_RECIPIENT_USER_NAME);
-        chat_id = intent.getStringExtra(DisplayMatchFragment.EXTRA_CHAT_ID);
-
-        //swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
-        //scrollView = (ScrollView)findViewById(R.id.scrollView);
-
-        messageListView = (ListView)findViewById(R.id.listView);
-
-        messageClientHelper = MessageClientHelper.getInstance(this);
-
-        //messages = messageClientHelper.fetchMessages(chat_id);
-
-        messages = new ArrayList<>(0);
-        adapter = new SwipeMessageListAdapter(this, messages);
-
-        messageListView.setAdapter(adapter);
-
-        //swipeRefreshLayout.setOnRefreshListener(this);
-
-        /*swipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                //swipeRefreshLayout.setRefreshing(true);
-                fetchMessages();
-            }
-        });*/
     }
 
     @Override
@@ -96,12 +74,43 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = getIntent();
+        recipient_user_id = intent.getStringExtra(DisplayMatchFragment.EXTRA_RECIPIENT_USER_ID);
+        recipient_user_name = intent.getStringExtra(DisplayMatchFragment.EXTRA_RECIPIENT_USER_NAME);
+        chat_id = intent.getStringExtra(DisplayMatchFragment.EXTRA_CHAT_ID);
+
+        //swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        //scrollView = (ScrollView)findViewById(R.id.scrollView);
+
+        messageListView = (ListView)findViewById(R.id.listView);
+
+        messageClientHelper = MessageClientHelper.getInstance(this);
+
+        //messages = messageClientHelper.fetchMessages(chat_id);
+
+        messages = new ArrayList<>(0);
+        adapter = new SwipeMessageListAdapter(this, messages);
+
+        messageListView.setAdapter(adapter);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         fetchMessages();
+        registerNewMessageReceiver();
 
         //scrollView.fullScroll(View.FOCUS_DOWN);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unRegisterNewMessageReceiver();
     }
 
     private void fetchMessages() {
@@ -126,5 +135,20 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         message_box.setText("");
         message_box.setHint("enter message here");
+    }
+
+    @Override
+    public void updateLayoutOnEvent() {
+        fetchMessages();
+    }
+
+    private void registerNewMessageReceiver() {
+        IntentFilter filter = new IntentFilter(NewMessageBroadcastReceiver.EVENT_NEW_MESSAGE);
+        newMessageBroadcastReceiver = new NewMessageBroadcastReceiver(this, chat_id);
+        registerReceiver(newMessageBroadcastReceiver, filter);
+    }
+
+    private void unRegisterNewMessageReceiver() {
+        unregisterReceiver(newMessageBroadcastReceiver);
     }
 }

@@ -82,7 +82,7 @@ public class NSDHelper {
         // Create the NsdServiceInfo object, and populate it.
             initializeServerSocket();
             initializeRegistrationListener();
-            initializeResolveListener();
+            //initializeResolveListener();
             initializeDiscoveryListener();
 
             mService = new NsdServiceInfo();
@@ -165,7 +165,8 @@ public class NSDHelper {
                     Log.d(TAG, "Same machine: " + mServiceName);
                 } else if (service.getServiceName().contains(SERVICE_NAME)){
                     Log.d(TAG, "gonna resolve service now");
-                   mNsdManager.resolveService(service, mResolveListener);
+                    mNsdManager.resolveService(service, initializeResolveListener());
+                   //mNsdManager.resolveService(service, mResolveListener);
                 }
             }
 
@@ -195,8 +196,8 @@ public class NSDHelper {
         };
     }
 
-    public void initializeResolveListener() {
-        mResolveListener = new NsdManager.ResolveListener() {
+    public NsdManager.ResolveListener initializeResolveListener() {
+        return new NsdManager.ResolveListener() {
 
             @Override
             public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
