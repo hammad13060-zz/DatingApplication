@@ -36,10 +36,10 @@ public class DisplayActivity extends MainActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        myServer = new AppServer(this);
+        /*myServer = new AppServer(this);
         myServer.initializeServer();
         myServer.startServer();
-        mNSDHelper = NSDHelper.getInstance(this);
+        mNSDHelper = NSDHelper.getInstance(this);*/
     }
 
     protected void onResume() {
@@ -47,9 +47,9 @@ public class DisplayActivity extends MainActivity {
         super.onResume();
 
         if (myServer == null) {
-            myServer = new AppServer(this);
+            /*myServer = new AppServer(this);
             myServer.initializeServer();
-            myServer.startServer();
+            myServer.startServer();*/
         }
 
         if (mNSDHelper == null) {
@@ -83,7 +83,7 @@ public class DisplayActivity extends MainActivity {
     @Override
     public void onStop() {
         super.onStop();
-        myServer.killServer();
-        mNSDHelper.tearDown();
+        /*myServer.killServer();
+        mNSDHelper.tearDown();*/
     }
 }

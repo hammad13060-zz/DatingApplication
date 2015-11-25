@@ -21,7 +21,7 @@ public class Constants {
 
 
     //public static final String WEB_SERVER_URL = "http://192.168.54.96/DatingAppServer";
-    public static final String WEB_SERVER_URL = "http://10.0.0.7/DatingAppServer";
+    public static final String WEB_SERVER_URL = "http://10.0.0.9/DatingAppServer";
     public static void addPerson(User person) {
         if (peopleAround == null) {
             peopleAround = new ArrayList<>(0);

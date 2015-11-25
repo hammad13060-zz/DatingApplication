@@ -22,6 +22,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.facebook.AccessToken;
 import com.hammad13060.datingapplication.DBEntity.Person;
+import com.hammad13060.datingapplication.DBHandlers.LikedUserDBHandler;
 import com.hammad13060.datingapplication.DBHandlers.PeopleDBHandler;
 import com.hammad13060.datingapplication.R;
 import com.hammad13060.datingapplication.helper.Constants;
@@ -240,12 +241,18 @@ public class DisplayPeopleFragment extends Fragment {
 
     private void setCurrentUser() {
         currentPerson = peopleAround.get(0);
-        ImageView profile_image_view = (ImageView)myView.findViewById(R.id.profile_image_view);
 
-                Picasso
-                .with(getActivity())
-                .load(currentPerson.get_url())
-                .into(profile_image_view);
+        if (hasLiked(currentPerson) || isMe(currentPerson)) {
+            deleteCurrentUser();
+        } else {
+
+            ImageView profile_image_view = (ImageView) myView.findViewById(R.id.profile_image_view);
+
+            Picasso
+                    .with(getActivity())
+                    .load(currentPerson.get_url())
+                    .into(profile_image_view);
+        }
     }
 
     private void deleteCurrentUser() {
@@ -266,14 +273,14 @@ public class DisplayPeopleFragment extends Fragment {
         try {
             user_request.put("user_id_1", user_id_1);
             user_request.put("user_id_2", user_id_2);
-            sendRequest(user_request);
+            sendRequest(user_request, user_id_2);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
     }
 
-    private void sendRequest(JSONObject object) {
+    private void sendRequest(JSONObject object, final String user_id) {
 
         //volley request object
         RequestQueue volleyRequest = Volley.newRequestQueue(getActivity());
@@ -284,6 +291,8 @@ public class DisplayPeopleFragment extends Fragment {
                 try {
                     boolean success = response.getBoolean("success");
                     Log.d(TAG, "like registration: " + success);
+                    LikedUserDBHandler handler = new LikedUserDBHandler(getActivity(), null, null, 1);
+                    handler.addLikedUserId(user_id);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -307,13 +316,13 @@ public class DisplayPeopleFragment extends Fragment {
 
     }
 
-    /*public void ignoreButtonClickListener(View view) {
-        deleteCurrentUser();
+    private boolean hasLiked(Person person) {
+        LikedUserDBHandler likedUserDBHandler = new LikedUserDBHandler(getActivity(), null, null, 1);
+        return likedUserDBHandler.hasLiked(person.get_user_id());
     }
 
-    public void likeButtonClickListener(View view) {
-        registerLike();
-        deleteCurrentUser();
-    }*/
+    private boolean isMe(Person person) {
+        return AccessToken.getCurrentAccessToken().getUserId().equals(person.get_user_id());
+    }
 
 }

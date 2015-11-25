@@ -118,7 +118,8 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
         messages = messageClientHelper.fetchMessages(chat_id);
         adapter.setMessages(messages);
         adapter.notifyDataSetChanged();
-        messageListView.refreshDrawableState();
+        messageListView.deferNotifyDataSetChanged();
+        //messageListView.refreshDrawableState();
         //swipeRefreshLayout.setRefreshing(false);
     }
 

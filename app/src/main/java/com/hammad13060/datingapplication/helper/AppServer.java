@@ -26,6 +26,8 @@ import java.net.Socket;
  */
 public class AppServer {
 
+    private static AppServer instance = null;
+
     private static final String TAG = "AppServer";
     public static final int SERVER_PORT = 6000;
     public static final String SERVER_REPLY = "Hey this is server!!!";
@@ -34,8 +36,18 @@ public class AppServer {
     private Context  context;
     private Thread serverThread = null;
 
-    public AppServer(Context context) {
+    private AppServer() {}
+
+    private AppServer(Context context) {
         this.context = context;
+    }
+
+    public static AppServer getInstance(Context context) {
+        if (instance == null) {
+            instance = new AppServer(context);
+        }
+
+        return instance;
     }
 
     public void initializeServer() {

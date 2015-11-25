@@ -12,7 +12,12 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.login.LoginManager;
+import com.hammad13060.datingapplication.DBHandlers.LikedUserDBHandler;
+import com.hammad13060.datingapplication.DBHandlers.PeopleDBHandler;
+import com.hammad13060.datingapplication.DBHandlers.UserDBHandler;
 import com.hammad13060.datingapplication.R;
+import com.hammad13060.datingapplication.helper.AppServer;
+import com.hammad13060.datingapplication.helper.NSDHelper;
 
 import java.util.Arrays;
 
@@ -81,8 +86,27 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, PreferenceActivity.class);
             startActivity(intent);
         } else if (id == R.id.action_logout) {
-            /*Intent intent = new Intent(this,LoginActivity.class);
-            startActivity(intent);*/
+            LoginManager.getInstance().logOut();
+
+            LikedUserDBHandler likedUserDBHandler = new LikedUserDBHandler(this, null, null, 1);
+            likedUserDBHandler.deleteAllData();
+
+            UserDBHandler userDBHandler = new UserDBHandler(this, null, null, 1);
+            userDBHandler.deleteAllData();
+
+            PeopleDBHandler peopleDBHandler = new PeopleDBHandler(this, null, null, 1);
+            peopleDBHandler.deleteAllData();
+
+            NSDHelper nsdHelper = NSDHelper.getInstance(this);
+            nsdHelper.tearDown();
+
+            AppServer myServer = AppServer.getInstance(this);
+            myServer.killServer();
+
+            Intent intent = new Intent(this,LoginActivity.class);
+            startActivity(intent);
+
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
@@ -136,68 +160,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(loginIntent);
         finish();
     }
-
-
-    /*private void fetchPersonalData() {
-        runOnUiThread(new Runnable(){
-            public void run() {
-
-                request = GraphRequest.newMeRequest(
-                        accessToken,
-                        new GraphRequest.GraphJSONObjectCallback() {
-                            @Override
-                            public void onCompleted(
-                                    JSONObject object,
-                                    GraphResponse response) {
-                                Log.d("response", "data received");
-                                try {
-
-                                    String id = object.getString("id");
-                                    String name = object.getString("name");
-                                    String birthday = object.getString("birthday");
-                                    String gender = object.getString("gender");
-
-                                    TextView view;
-
-                                    view = (TextView)findViewById(R.id.id_view);
-                                    view.setText(id);
-
-                                    view = (TextView)findViewById(R.id.name_view);
-                                    view.setText(name);
-
-                                    view = (TextView)findViewById(R.id.gender_view);
-                                    view.setText(gender);
-
-                                    view = (TextView)findViewById(R.id.birthday_view);
-                                    view.setText(birthday);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                // Application code
-                            }
-                        });
-
-                //If there are stories, add them to the table
-                Bundle parameters = new Bundle();
-                parameters.putString("fields", "id,name,birthday,gender");
-                request.setParameters(parameters);
-                request.executeAsync();
-            }
-        });
-    }
-
-    void getPermanentToken(){
-        new Runnable() {
-            public void run(){
-                JSONObject object = new JSONObject();
-                try {
-                    object.accumulate("token", AccessToken.getCurrentAccessToken());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-    }*/
 
 
     @Override

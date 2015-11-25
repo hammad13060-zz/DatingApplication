@@ -22,7 +22,7 @@ public class UserDBHandler extends SQLiteOpenHelper {
 
     private Context context = null;
 
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 20;
     private static final String DATABASE_NAME = "dating_application.db";
     private static final String TABLE_USERS = "users";
 
@@ -156,6 +156,12 @@ public class UserDBHandler extends SQLiteOpenHelper {
         String query = "DELETE FROM " + TABLE_USERS + " WHERE " + COLUMN_USER_ID + "=\'" + user_id + "\';";
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL(query);
+        db.close();
+    }
+
+    public void deleteAllData() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_USERS + ";");
         db.close();
     }
 

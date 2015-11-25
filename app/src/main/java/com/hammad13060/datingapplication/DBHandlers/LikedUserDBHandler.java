@@ -14,12 +14,12 @@ import java.util.List;
 public class LikedUserDBHandler extends SQLiteOpenHelper {
     private Context context = null;
 
-    private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "dating_application_people.db";
+    private static final int DATABASE_VERSION = 20;
+    private static final String DATABASE_NAME = "dating_application_likes.db";
     private static final String TABLE_LIKES = "likes";
 
     private static final String COLUMN_ID = "_id";
-    private static final String COLUMN_USER_ID = "_user_id";
+    private static final String COLUMN_USER_ID = "user_id";
 
     public LikedUserDBHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, DATABASE_NAME, factory, DATABASE_VERSION);
@@ -70,5 +70,10 @@ public class LikedUserDBHandler extends SQLiteOpenHelper {
         }
 
         return false;
+    }
+
+    public void deleteAllData() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_LIKES + ";");
     }
 }

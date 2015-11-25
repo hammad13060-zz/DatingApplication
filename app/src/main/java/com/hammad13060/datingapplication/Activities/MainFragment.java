@@ -55,7 +55,7 @@ public class MainFragment extends MainActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        myServer = new AppServer(this);
+        myServer = AppServer.getInstance(this);
         myServer.initializeServer();
         myServer.startServer();
         mNSDHelper = NSDHelper.getInstance(this);
@@ -67,7 +67,7 @@ public class MainFragment extends MainActivity {
         super.onResume();
 
         if (myServer == null) {
-            myServer = new AppServer(this);
+            myServer = AppServer.getInstance(this);
             myServer.initializeServer();
             myServer.startServer();
         }
@@ -83,8 +83,6 @@ public class MainFragment extends MainActivity {
     @Override
     public void onStop() {
         super.onStop();
-        mNSDHelper.tearDown();
-        myServer.killServer();
     }
 
     private void setupViewPager(ViewPager viewPager) {

@@ -135,7 +135,7 @@ public class LoginActivity extends FragmentActivity {
         } else if (accessToken != null && !accessToken.isExpired()) {
             //getPermanentToken();
             requestProfileInfo();
-            enterMainApp();
+            //enterMainApp();
         }
 
     }
@@ -223,7 +223,7 @@ public class LoginActivity extends FragmentActivity {
                 Log.d(TAG, "LOGGING IN");
                 accessToken = loginResult.getAccessToken();
                 requestProfileInfo();
-                enterMainApp();
+                //enterMainApp();
 
             }
 
@@ -371,6 +371,8 @@ public class LoginActivity extends FragmentActivity {
                     editor.putBoolean("female", true);
                     editor.commit();
 
+                    enterMainApp();
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -385,6 +387,7 @@ public class LoginActivity extends FragmentActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(TAG, "POST FAILED");
+                enterMainApp();
             }
         };
 

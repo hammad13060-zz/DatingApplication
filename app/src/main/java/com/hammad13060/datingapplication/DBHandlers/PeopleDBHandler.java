@@ -21,8 +21,8 @@ import java.util.List;
 public class PeopleDBHandler extends SQLiteOpenHelper {
     private Context context = null;
 
-    private static final int DATABASE_VERSION = 14;
-    private static final String DATABASE_NAME = "dating_application_people.db";
+    private static final int DATABASE_VERSION = 20;
+    private static final String DATABASE_NAME = "dating_application_peoples.db";
     private static final String TABLE_PEOPLE = "peoples";
 
     private static final String COLUMN_ID = "_id";
@@ -154,6 +154,11 @@ public class PeopleDBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL(query);
         db.close();
+    }
+
+    public void deleteAllData() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_PEOPLE + ";");
     }
 
 }
