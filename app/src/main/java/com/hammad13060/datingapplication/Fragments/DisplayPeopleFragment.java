@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -247,6 +248,9 @@ public class DisplayPeopleFragment extends Fragment {
         } else {
 
             ImageView profile_image_view = (ImageView) myView.findViewById(R.id.profile_image_view);
+            TextView name_text_view = (TextView) myView.findViewById(R.id.name_text_view);
+
+            name_text_view.setText(currentPerson.get_name());
 
             Picasso
                     .with(getActivity())

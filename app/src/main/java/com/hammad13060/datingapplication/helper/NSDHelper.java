@@ -225,18 +225,20 @@ public class NSDHelper {
     }
 
     public void tearDown() {
-        if (mServerSocket != null) {
-            try {
-                mServerSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (instance != null) {
+            if (mServerSocket != null) {
+                try {
+                    mServerSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
-        mNsdManager.unregisterService(mRegistrationListener);
-        mNsdManager.stopServiceDiscovery(mDiscoveryListener);
-        mResolveListener = null;
+            mNsdManager.unregisterService(mRegistrationListener);
+            mNsdManager.stopServiceDiscovery(mDiscoveryListener);
+            mResolveListener = null;
 
-        instance = null;
+            instance = null;
+        }
 
     }
 

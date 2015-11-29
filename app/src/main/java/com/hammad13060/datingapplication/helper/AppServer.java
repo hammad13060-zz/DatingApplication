@@ -139,17 +139,20 @@ public class AppServer {
     }
 
     public void killServer() {
-        if (serverThread != null) {
-            serverThread.interrupt();
-        }
+        if (instance != null) {
+            if (serverThread != null) {
+                serverThread.interrupt();
+            }
 
-        if (mServerSocket != null) {
-            try {
-                mServerSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (mServerSocket != null) {
+                try {
+                    mServerSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
+        instance = null;
     }
 
 }

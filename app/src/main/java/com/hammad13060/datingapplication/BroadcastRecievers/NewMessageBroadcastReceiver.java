@@ -3,6 +3,7 @@ package com.hammad13060.datingapplication.BroadcastRecievers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import com.hammad13060.datingapplication.Fragments.DisplayMatchFragment;
 import com.hammad13060.datingapplication.Interfaces.UpdateLayoutInterface;
@@ -27,9 +28,15 @@ public class NewMessageBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String expected_chat_id = intent.getStringExtra(DisplayMatchFragment.EXTRA_CHAT_ID);
         String message = intent.getStringExtra(MessageClientHelper.EXTRA_MESSAGE);
+        boolean myMessage = intent.getBooleanExtra(MessageClientHelper.EXTRA_MY_MESSAGE, false);
 
         if (chat_id.equals(expected_chat_id)) {
             module.updateLayoutOnEvent();
+            if (myMessage) {
+                module.updateLayoutOnEvent(message);
+            } else {
+                module.updateLayoutOnEvent();
+            }
         }
     }
 }

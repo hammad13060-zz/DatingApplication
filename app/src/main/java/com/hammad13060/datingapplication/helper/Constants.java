@@ -18,6 +18,7 @@ public class Constants {
     public static final String SHARED_PREFERENCE = "com.hammad13060.datingapplication.USER_PREFERENCE";
     public static final String USER_DATA = "com.hammad13060.datingapplication.USER_DATA";
     public static List<User> peopleAround = null;
+    public static boolean parseDisabled = true;
 
 
     //public static final String WEB_SERVER_URL = "http://192.168.54.96/DatingAppServer";

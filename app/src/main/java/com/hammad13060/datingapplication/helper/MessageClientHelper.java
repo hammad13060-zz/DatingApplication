@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.hammad13060.datingapplication.BroadcastRecievers.NewMessageBroadcastReceiver;
@@ -43,8 +44,10 @@ public class MessageClientHelper {
     private static final String TAG = "MessageClientHelper";
 
     public static final String EXTRA_MESSAGE = "com.hammad13060.datingapplication.helper.MESSAGE";
+    public static final String EXTRA_MY_MESSAGE = "com.hammad13060.datingapplication.helper.EXTRA_MY_MESSAGE";
 
     public static final String HEADER_CHAT_ID = "com.hammad13060.datingapplication.helper.CHAT_ID";
+    public static final String HEADER_SENDER_ID = "com.hammad13060.datingapplication.helper.SENDER_ID";
 
     //class and key description of ChatData class
     public static final String CLASS_CHAT_DATA = "ChatData";
@@ -119,14 +122,19 @@ public class MessageClientHelper {
 
     private void enableParse() {
         // Enable Local Datastore.
-        Parse.enableLocalDatastore(context);
-        Parse.initialize(context, "Oi06rcMuTImq7ZolKPfanXUZTZBDhl23a91xvEQR", "Up5UgrEybCvkQDaUStZFLGOCOO7NrV1sMOa2Vbsm");
-
+        if (Constants.parseDisabled) {
+            Parse.enableLocalDatastore(context);
+            Parse.initialize(context, "Oi06rcMuTImq7ZolKPfanXUZTZBDhl23a91xvEQR", "Up5UgrEybCvkQDaUStZFLGOCOO7NrV1sMOa2Vbsm");
+            Constants.parseDisabled = false;
+        }
     }
 
     public void terminateMessageClient() {
-        sinchClient.stopListeningOnActiveConnection();
-        sinchClient.terminate();
+        if (instance != null) {
+            sinchClient.stopListeningOnActiveConnection();
+            sinchClient.terminate();
+            instance = null;
+        }
     }
 
     private SinchClientListener initSinchClientListener() {
@@ -163,9 +171,11 @@ public class MessageClientHelper {
 
             @Override
             public void onIncomingMessage(MessageClient messageClient, com.sinch.android.rtc.messaging.Message message) {
+                Log.d(TAG, "onIncomingMessage called");
                 String chat_id = message.getHeaders().get(HEADER_CHAT_ID);
                 String textMessage = message.getTextBody();
-                sendNewMessageBroadcast(chat_id, textMessage);
+                String sender_id = message.getSenderId();
+                saveTextMessageToParseCloud(textMessage, sender_id, chat_id, false);
             }
 
             @Override
@@ -175,7 +185,8 @@ public class MessageClientHelper {
                 String chat_id = message.getHeaders().get(HEADER_CHAT_ID);
                 String sender_id = message.getSenderId();
 
-                saveTextMessageToParseCloud(textMessage, sender_id, chat_id);
+                /*saveTextMessageToParseCloud(textMessage, sender_id, chat_id);*/
+                sendNewMessageBroadcast(chat_id, textMessage, true);
             }
 
             @Override
@@ -185,7 +196,8 @@ public class MessageClientHelper {
                 String chat_id = message.getHeaders().get(HEADER_CHAT_ID);
                 String sender_id = message.getSenderId();
 
-                saveTextMessageToParseCloud(textMessage, sender_id, chat_id);
+                saveTextMessageToParseCloud(textMessage, sender_id, chat_id, true);
+                //sendNewMessageBroadcast(chat_id, textMessage, true);
             }
 
             @Override
@@ -201,32 +213,30 @@ public class MessageClientHelper {
     }
 
 
-    private void saveTextMessageToParseCloud(final String textMessage, String sender_id, final String chat_id) {
+    private void saveTextMessageToParseCloud(final String textMessage, String sender_id, final String chat_id, boolean broadcast) {
         ParseQuery<ParseObject> query = ParseQuery.getQuery(CLASS_CHAT_DATA);
 
         final ParseObject textMessageObject = new ParseObject(CLASS_MESSAGE);
         textMessageObject.put(MESSAGE_SENDER_ID, sender_id);
         textMessageObject.put(MESSAGE_TEXT_MESSAGE, textMessage);
 
-        query.getInBackground(chat_id, new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject object, ParseException e) {
-                if (e == null) {
-                    object.add("messages", textMessageObject);
-                    try {
-                        object.save();
-                        sendNewMessageBroadcast(chat_id, textMessage);
-                    } catch (ParseException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-            }
-        });
+
+        try {
+            textMessageObject.save();
+            ParseObject object = query.get(chat_id);
+            object.add("messages", textMessageObject);
+            object.save();
+            sendNewMessageBroadcast(chat_id, textMessage, broadcast);
+        } catch (ParseException e) {
+            Toast.makeText(context, "error while sending/receiving messages" + e.toString(), Toast.LENGTH_SHORT);
+            e.printStackTrace();
+        }
     }
 
     public void sendTextMessage(String recipientUserId, String msg, String chat_id) {
         WritableMessage message = new WritableMessage(recipientUserId, msg);
         message.addHeader(HEADER_CHAT_ID, chat_id);
+        message.addHeader(HEADER_SENDER_ID, AccessToken.getCurrentAccessToken().getUserId());
         messageClient.send(message);
     }
 
@@ -269,11 +279,17 @@ public class MessageClientHelper {
         return objectIdList;
     }
 
-    private void sendNewMessageBroadcast(String chat_id, String textMessage) {
+    private void sendNewMessageBroadcast(String chat_id, String textMessage, boolean myMessage) {
         Intent newMessageIntent = new Intent();
         newMessageIntent.setAction(NewMessageBroadcastReceiver.EVENT_NEW_MESSAGE);
         newMessageIntent.putExtra(DisplayMatchFragment.EXTRA_CHAT_ID, chat_id);
         newMessageIntent.putExtra(MessageClientHelper.EXTRA_MESSAGE, textMessage);
+
+        if (myMessage) {
+            newMessageIntent.putExtra(EXTRA_MY_MESSAGE, true);
+        } else {
+            newMessageIntent.putExtra(EXTRA_MY_MESSAGE, false);
+        }
 
         context.sendBroadcast(newMessageIntent);
     }

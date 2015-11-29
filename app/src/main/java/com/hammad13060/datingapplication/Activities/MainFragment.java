@@ -15,6 +15,7 @@ import com.hammad13060.datingapplication.R;
 import com.hammad13060.datingapplication.helper.AppServer;
 import com.hammad13060.datingapplication.helper.MessageClientHelper;
 import com.hammad13060.datingapplication.helper.NSDHelper;
+import com.parse.Parse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class MainFragment extends MainActivity {
 
     private AppServer myServer = null;
     private NSDHelper mNSDHelper = null;
+    private MessageClientHelper msgClient = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,8 @@ public class MainFragment extends MainActivity {
         myServer.initializeServer();
         myServer.startServer();
         mNSDHelper = NSDHelper.getInstance(this);
+
+        msgClient = MessageClientHelper.getInstance(getApplicationContext());
     }
 
     @Override
@@ -76,8 +80,9 @@ public class MainFragment extends MainActivity {
             mNSDHelper = NSDHelper.getInstance(this);
         }
 
-        MessageClientHelper.getInstance(getApplicationContext());
-
+        if (msgClient == null) {
+            msgClient = MessageClientHelper.getInstance(getApplicationContext());
+        }
     }
 
     @Override
@@ -87,7 +92,7 @@ public class MainFragment extends MainActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new DisplayProfileFragment(), "PROFILE");
+        //adapter.addFragment(new DisplayProfileFragment(), "PROFILE");
         adapter.addFragment(new DisplayPeopleFragment(), "DISCOVER");
         adapter.addFragment(new DisplayMatchFragment(), "MATCHES");
         viewPager.setAdapter(adapter);
@@ -121,4 +126,5 @@ public class MainFragment extends MainActivity {
             return mFragmentTitleList.get(position);
         }
     }
+
 }

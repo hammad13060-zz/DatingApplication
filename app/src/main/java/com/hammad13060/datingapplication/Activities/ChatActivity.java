@@ -12,7 +12,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
+import com.facebook.AccessToken;
 import com.hammad13060.datingapplication.Adapters.SwipeMessageListAdapter;
 import com.hammad13060.datingapplication.BroadcastRecievers.NewMessageBroadcastReceiver;
 import com.hammad13060.datingapplication.Fragments.DisplayMatchFragment;
@@ -26,7 +28,7 @@ import com.sinch.android.rtc.messaging.MessageClientListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, UpdateLayoutInterface {
+public class ChatActivity extends MainActivity implements SwipeRefreshLayout.OnRefreshListener, UpdateLayoutInterface {
 
     private String recipient_user_id = null;
     private String recipient_user_name = null;
@@ -114,13 +116,10 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void fetchMessages() {
-        //swipeRefreshLayout.setRefreshing(true);
         messages = messageClientHelper.fetchMessages(chat_id);
         adapter.setMessages(messages);
         adapter.notifyDataSetChanged();
         messageListView.deferNotifyDataSetChanged();
-        //messageListView.refreshDrawableState();
-        //swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -140,7 +139,17 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void updateLayoutOnEvent() {
+
         fetchMessages();
+        Toast.makeText(this, "new message received", Toast.LENGTH_SHORT).show();
+    }
+    public void updateLayoutOnEvent(String message) {
+        ParseObject object = new ParseObject(MessageClientHelper.CLASS_MESSAGE);
+        object.put(MessageClientHelper.MESSAGE_TEXT_MESSAGE, message);
+        object.put(MessageClientHelper.MESSAGE_SENDER_ID, AccessToken.getCurrentAccessToken().getUserId());
+        messages.add(object);
+        Toast.makeText(this, "your message delivered", Toast.LENGTH_SHORT).show();
+        adapter.notifyDataSetChanged();
     }
 
     private void registerNewMessageReceiver() {

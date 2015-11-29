@@ -2,18 +2,25 @@ package com.hammad13060.datingapplication.Activities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.net.wifi.WifiManager;
 import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Base64;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -36,11 +43,15 @@ import com.facebook.login.widget.LoginButton;
 import com.hammad13060.datingapplication.Activities.MainFragment;
 import com.hammad13060.datingapplication.DBEntity.User;
 import com.hammad13060.datingapplication.DBHandlers.LikedUserDBHandler;
+import com.hammad13060.datingapplication.DBHandlers.PeopleDBHandler;
 import com.hammad13060.datingapplication.DBHandlers.UserDBHandler;
 import com.hammad13060.datingapplication.R;
+import com.hammad13060.datingapplication.helper.AppServer;
 import com.hammad13060.datingapplication.helper.Constants;
 import com.hammad13060.datingapplication.helper.JSONRequest;
 import com.hammad13060.datingapplication.helper.MessageClientHelper;
+import com.hammad13060.datingapplication.helper.NSDHelper;
+import com.parse.Parse;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -85,13 +96,18 @@ public class LoginActivity extends FragmentActivity {
         //setting the layout
         setContentView(R.layout.activity_login);
 
-        /*Button clickButton = (Button) findViewById(R.id.inst);
+        Button clickButton = (Button) findViewById(R.id.inst);
         final TypedValue typedValue = new TypedValue();
         clickButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                String mssg = "1.Login with facebook.\n2.This app will work only if other users are also on the same wifi network.";
+                String mssg = "1. Login with facebook.\n" +
+                        "2. This app will work only if other users are also on the same wifi network."
+                        + "3. Select discover tab for seeing people around"
+                        +"4. Select Match tab for seeing all your matches and chat with them by tapping on matches"
+                        +"5. view your profile and preferences from action overflow"
+                        +"6. logout by clicking logout button in action overflow";
                 AlertDialog.Builder myAlert = new AlertDialog.Builder(LoginActivity.this);
 
                 myAlert.setMessage(mssg)
@@ -107,7 +123,7 @@ public class LoginActivity extends FragmentActivity {
                 myAlert.show();
 
             }
-        });*/
+        });
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
@@ -125,17 +141,30 @@ public class LoginActivity extends FragmentActivity {
         //setting permissions of login button
         loginButton.setReadPermissions("user_photos", "user_about_me", "user_birthday", "user_location", "user_posts");
 
-        //getting current access token
-        accessToken = AccessToken.getCurrentAccessToken();
 
-        //
-        if (accessToken != null && accessToken.isExpired()) {
-            LoginManager.getInstance().logInWithReadPermissions(this,
-                    Arrays.asList("user_photos", "user_about_me", "user_birthday", "user_location", "user_posts"));
-        } else if (accessToken != null && !accessToken.isExpired()) {
-            //getPermanentToken();
-            requestProfileInfo();
-            //enterMainApp();
+        WifiManager wifi_manager = (WifiManager)this.getSystemService(this.WIFI_SERVICE);
+        if (!wifi_manager.isWifiEnabled()) {
+            Toast.makeText(this, "enable your wifi", Toast.LENGTH_SHORT).show();
+            AppServer.getInstance(this).killServer();
+            NSDHelper.getInstance(this).tearDown();
+            MessageClientHelper.getInstance(this).terminateMessageClient();
+            //LoginManager.getInstance().logOut();
+            finish();
+
+        } else {
+
+            //getting current access token
+            accessToken = AccessToken.getCurrentAccessToken();
+
+            //
+            if (accessToken != null && accessToken.isExpired()) {
+                LoginManager.getInstance().logInWithReadPermissions(this,
+                        Arrays.asList("user_photos", "user_about_me", "user_birthday", "user_location", "user_posts"));
+            } else if (accessToken != null && !accessToken.isExpired()) {
+                //getPermanentToken();
+                requestProfileInfo();
+                //enterMainApp();
+            }
         }
 
     }
@@ -252,7 +281,7 @@ public class LoginActivity extends FragmentActivity {
     private void enterMainApp() {
         Intent intent = new Intent(this, MainFragment.class);
         startActivity(intent);
-        //finish();
+        finish();
     }
 
     private void requestProfileInfo() {
@@ -387,7 +416,18 @@ public class LoginActivity extends FragmentActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(TAG, "POST FAILED");
-                enterMainApp();
+                LoginManager.getInstance().logOut();
+
+                LikedUserDBHandler likedUserDBHandler = new LikedUserDBHandler(getApplication(), null, null, 1);
+                likedUserDBHandler.deleteAllData();
+
+                UserDBHandler userDBHandler = new UserDBHandler(getApplication(), null, null, 1);
+                userDBHandler.deleteAllData();
+
+                PeopleDBHandler peopleDBHandler = new PeopleDBHandler(getApplication(), null, null, 1);
+                peopleDBHandler.deleteAllData();
+
+                //enterMainApp();
             }
         };
 
@@ -410,4 +450,5 @@ public class LoginActivity extends FragmentActivity {
         UserDBHandler handler = new UserDBHandler(this, null, null, 1);
         handler.addUser(user);
     }
+
 }

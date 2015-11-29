@@ -5,4 +5,5 @@ package com.hammad13060.datingapplication.Interfaces;
  */
 public interface UpdateLayoutInterface {
     public void updateLayoutOnEvent();
+    public void updateLayoutOnEvent(String message);
 }

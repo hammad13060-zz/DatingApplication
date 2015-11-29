@@ -1,10 +1,14 @@
 package com.hammad13060.datingapplication.Activities;
 
+import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -17,6 +21,7 @@ import com.hammad13060.datingapplication.DBHandlers.PeopleDBHandler;
 import com.hammad13060.datingapplication.DBHandlers.UserDBHandler;
 import com.hammad13060.datingapplication.R;
 import com.hammad13060.datingapplication.helper.AppServer;
+import com.hammad13060.datingapplication.helper.MessageClientHelper;
 import com.hammad13060.datingapplication.helper.NSDHelper;
 
 import java.util.Arrays;
@@ -58,6 +63,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        WifiManager wifi_manager = (WifiManager)this.getSystemService(this.WIFI_SERVICE);
+        if (!wifi_manager.isWifiEnabled()) {
+            Toast.makeText(this, "enable your wifi",  Toast.LENGTH_LONG).show();
+            AppServer.getInstance(this).killServer();
+            NSDHelper.getInstance(this).tearDown();
+            MessageClientHelper.getInstance(this).terminateMessageClient();
+            finish();
+        }
 
         //fetchPersonalData();
 
